@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%% file typeinst.tex %%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% This is the LaTeX source for the instructions to authors using
+% This  is the LaTeX source for the instructions to authors using
 % the LaTeX document class 'llncs.cls' for contributions to
 % the Lecture Notes in Computer Sciences series.
 % http://www.springer.com/lncs       Springer Heidelberg 2006/05/04
@@ -53,17 +53,13 @@ Tim Menzies}
 %Anna Kramer\and Erika
 %Siebert-Cole}
 %
-\authorrunning{Lecture Notes in Computer Science: Authors' Instructions}
+\authorrunning{Explaing MOEAs, SSBSE'15}
 % (feature abused for this document to repeat the title also on left hand pages)
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
-\institute{Springer-Verlag, Computer Science Editorial,\\
-Tiergartenstr. 17, 69121 Heidelberg, Germany\\
-\mailsa\\
-\mailsb\\
-\mailsc\\
-\url{http://www.springer.com/lncs}}
+\institute{Comptuer Science, West Virginia University, NcState UNiversity, USA\\
+nalekkalapudi@mix.wvu.edu, tim.menzies@gmail.com}
 
 %
 % NB: a more complex sample for affiliations and the mapping to the
@@ -71,22 +67,71 @@ Tiergartenstr. 17, 69121 Heidelberg, Germany\\
 % (search for the string "\mainmatter" where a contribution starts).
 % "llncs.dem" accompanies the document class "llncs.cls".
 %
-
-\toctitle{Lecture Notes in Computer Science}
-\tocauthor{Authors' Instructions}
+ 
 \maketitle
 
 
 \begin{abstract}
-The abstract should summarize the contents of the paper and should
-contain at least 70 and at most 150 words. It should be written using the
-\emph{abstract} environment.
-\keywords{We would like to encourage you to list your keywords within
+CROSSTREES is a near linear-time algorithm for generating
+succinct explainations of a Pareto frontier. 
+A human inspecting CROSSTREES' output can quickly infer changes
+that can improve their situation. This paper assess the value of those
+changes by applying those changes as constraints on various models
+of different software engineering processes 
+that applied CROSSTREE's models to (a) the POM3 model of agile selection
+of tasks; (b) four COCOMO-suite predictors for effort, months, defects and risk.
+These recommendations were found to be competitive with the
+recommendations of standard multi-objective
+optimizers (NSGA-II and SPEA2). Further, CROSSTREES' recommendations
+were generated orders of magnitude faster than those found by
+NSGA-II and SPEA2. Hence, at the very least, we recommend
+CROSSTREES as an explanation post-processor to other MOEAs.
+That said, CROSSTREES could also serve as an MOEA in its own right.
+\keywords{Optimization, multi-objective,
+explanation, software engineering, We would like to encourage you to list your keywords within
 the abstract section}
 \end{abstract}
 
 
 \section{Introduction}
+A standard technique in SBSE is the exploration of thousands to millions
+of randomly
+
+\sinbsection{Caveats}
+GAs flat vectors, not the trees explored by by ()say) Gouse et al.
+
+Goals is performance just as good but explain better
+
+\section{Motivating Example}
+We come to this work after attending a recent seminar at the US 
+Department of Defence's Software Engineering Institute (SEI), Pittsburgh, USA.
+That seminar reflected on how to best broadcast the lessons learned by SEI
+to a very broad audience.
+
+In the $21^{st}$ century, it is now impossible to manually browse very
+large quantities of software project data.
+For example, as of October 2012,
+Mozilla Firefox had 800K reports on software projects.  While it is
+now possible to automatically analyze such data with data miners, at
+some stage a group of business users will have to convene to {\em
+  interpret the results} (e.g., to decide if it is wise to deploy the
+results as a defect reduction method within an organization).
+These business  users are now demanding that data mining tools
+be augmented with tools to support  business-level
+interpretation of that data. For example,
+
+at a recent panel on software analytics at ICSE'12,
+
+industrial practitioners lamented the state of the art in data mining
+
+and software engineering~\cite{menzies12a}. Panelists commented that
+
+``prediction is all well and good, but what about decision
+
+making?''. That is, these panelists are more interested in the interpretations
+
+that follow the mining, rather than just  the mining.
+
 
 You are strongly encouraged to use \LaTeXe{} for the
 preparation of your camera-ready manuscript together with the
@@ -151,6 +196,15 @@ Please send your signed copyright
 form to the Contact Volume Editor, either as a scanned pdf or by fax or
 by courier. One author may sign on behalf of all of the other authors of a particular
 paper. Digital signatures are acceptable.
+
+\section{Related Work}
+
+Sayyad
+
+GALE
+
+
+
 
 \section{Paper Preparation}
 
@@ -241,16 +295,7 @@ pronounced as possible.
 
 If screenshots are necessary, please make sure that you are happy with
 the print quality before you send the files.
-\begin{figure}
-\centering
-\includegraphics[height=6.2cm]{eijkel2}
-\caption{One kernel at $x_s$ (\emph{dotted kernel}) or two kernels at
-$x_i$ and $x_j$ (\textit{left and right}) lead to the same summed estimate
-at $x_s$. This shows a figure consisting of different types of
-lines. Elements of the figure described in the caption should be set in
-italics, in parentheses, as shown in this sample caption.}
-\label{fig:example}
-\end{figure}
+ 
 
 Please define figures (and tables) as floating objects. Please avoid
 using optional location parameters like ``\verb+[h]+" for ``here".
