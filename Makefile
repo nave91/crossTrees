@@ -1,11 +1,12 @@
 Src=crosstrees
 Name=15crosstrees
-Bib= refs.bib 
+BibDir=$(HOME)/svns/things/trunk/tex#
+Bib=  $(BibDir)/refs.bib
 
 all : dirs tex bib  tex tex embedfonts done publocal
 
-commit:  ; - git status; git commit -a; git push origin master
-typo:  ; - git status; git commit -am "typo"; git push origin master
+commit:  ; - git status; git commit -a; git push origin master; cd $(BibDir); svn commit -m $(Bib)
+typo:  ; - git status; git commit -am "typo"; git push origin master; cd $(BibDir); svn update 
 update:; - git pull origin master
 status:; - git status
 gitting:
@@ -18,6 +19,9 @@ publish : dirs all
 	scp -p pdf/$(Name).pdf stuff@ttoy.net:menzies.us/pdf
 
 one : dirs tex done publocal
+
+view:
+	evince $(HOME)/tmp/$(Src).pdf &
 
 publocal:
 	cp $(HOME)/tmp/$(Src).pdf pdf/

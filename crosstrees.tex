@@ -19,6 +19,7 @@
 \documentclass[runningheads]{llncs}
 
 \usepackage{amssymb}
+\usepackage{cite}
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
 
@@ -29,12 +30,56 @@
 \newcommand{\keywords}[1]{\par\addvspace\baselineskip
 \noindent\keywordname\enspace\ignorespaces#1}
 
+\newenvironment{myepigraph}
+  {\par\hfill\itshape
+   \begin{tabular}{@{}r@{}}} % 2em from the right margin
+  {\end{tabular}\par\medskip}
+
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+
+\newcommand{\fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\eq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\tion}[1]{\S\ref{sec:#1}}
+
+
+\usepackage[small,compact]{titlesec}
+
+
+
+\usepackage{times}
+\def\baselinestretch{0.95}
+
+
+ \usepackage[font={small}]{caption, subfig}
+ \renewcommand{\figurename}{Fig.}
+ \renewcommand{\tablename}{Tab.}
+\usepackage{enumitem}
+\setlength{\abovecaptionskip}{1ex}
+ \setlength{\belowcaptionskip}{1ex}
+ \setlength{\floatsep}{1ex}
+ \setlength{\textfloatsep}{1ex}
+\setlist{nosep}
+
+%\usepackage{biblatex}
+%\renewcommand*{\bibfont}{\footnotesize}
+%\usepackage[sort&compress]{natbib}  
+ \newcommand{\bibfont}{\tiny}
+% \setlength{\bibsep}{0ex}
+%\renewcommand\section{\@startsection{section}{1}{\z@}{-10\p@ \@plus -4\p@ \@minus -4\p@}{5\p@ \@plus 4\p@ \@minus 4\p@}{\normalfont\large\bfseries\boldmath\rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+
 \begin{document}
+
 
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{Explain Multi-Objective Optimizers (in Linear Time)}
+\title{Finding Explanations for Multi-Objective Optimization
+(in Near-Linear Time)}
 
 % a short form should be given in case it is too long for the running head
 \titlerunning{SSBSE'15}
@@ -45,8 +90,8 @@
 % their surnames. This ensures that the names appear correctly in
 % the running heads and the author index.
 %
-\author{Naveen  Lekkalapudi \and% 
-Tim Menzies}
+\author{Authors suppressed for blind review}
+
 %<nalekkalapudi@mix.wvu.edu>Tim Menzies%
 %%\and Ursula Barth\and Ingrid Beyer\and Natalie Brecht\and\\
 %Christine G\"{u}nther\and Frank Holzwarth\and Pia Maria Karbach \and\\
@@ -58,8 +103,7 @@ Tim Menzies}
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
-\institute{Comptuer Science, West Virginia University, NcState UNiversity, USA\\
-nalekkalapudi@mix.wvu.edu, tim.menzies@gmail.com}
+\institute{Institution suppressed for blind review}
 
 %
 % NB: a more complex sample for affiliations and the mapping to the
@@ -72,37 +116,280 @@ nalekkalapudi@mix.wvu.edu, tim.menzies@gmail.com}
 
 
 \begin{abstract}
-CROSSTREES is a near linear-time algorithm for generating
-succinct explainations of a Pareto frontier. 
-A human inspecting CROSSTREES' output can quickly infer changes
-that can improve their situation. This paper assess the value of those
-changes by applying those changes as constraints on various models
-of different software engineering processes 
-that applied CROSSTREE's models to (a) the POM3 model of agile selection
+CT0 is very fast  algorithm for finding trade-offs in multi-objective problems.
+A human inspecting those explanations 
+can quickly infer changes
+that can improve their situation. 
+This paper evaluates those explanations using data
+generated from   (a) the POM3 model of agile selection
 of tasks; (b) four COCOMO-suite predictors for effort, months, defects and risk.
-These recommendations were found to be competitive with the
-recommendations of standard multi-objective
-optimizers (NSGA-II and SPEA2). Further, CROSSTREES' recommendations
-were generated orders of magnitude faster than those found by
-NSGA-II and SPEA2. Hence, at the very least, we recommend
-CROSSTREES as an explanation post-processor to other MOEAs.
-That said, CROSSTREES could also serve as an MOEA in its own right.
-\keywords{Optimization, multi-objective,
-explanation, software engineering, We would like to encourage you to list your keywords within
-the abstract section}
+CT0 ran orders of magnitude faster than standard
+optimizers  (e.g. 3 seconds vs 150 seconds).
+Also, the  generated 
+explanations were as effective for optimization
+as the results of standard multi-objective
+optimizers (NSGA-II and SPEA2). 
+
+Based on this study, we recommend CT0 
+when some succinct summary has to be rapidly generated (e.g.  in some interactive
+design meeting). CT0 could also be useful as post-processor
+to other optimizers (to generate succinct explanations of their
+conclusions) or as a
+optimizer to other optimizers (by constraining those other optimizers
+to only search the regions recommended by CT0).
+
+\keywords{Software engineering, explanation, optimization, multi-objective.}
 \end{abstract}
 
 
-\section{Introduction}
-A standard technique in SBSE is the exploration of thousands to millions
-of randomly
 
-\sinbsection{Caveats}
+
+
+\begin{myepigraph}
+``If you cannot- in the long run- tell  everyone what \\
+ you have been doing, your  doing has been worthless.''\\
+ {\em-- Erwin Schrodinger}
+
+\end{myepigraph}
+
+\section{Introduction}
+Explaining and the results of
+multi-objective optimization to a user
+can be problematic.
+A typical run of a multi-objective optimizer
+can process thousands to millions of examples.
+It is an overwhelming task for humans to
+certify the correctness of conclusions generated
+from so many results. Verrappa and Leiter warn that
+\begin{quote}
+``..for industrial problems, these algorithms generate
+(many) solutions, which makes the tasks of
+understanding them and selecting one among them
+difficult and time consuming''~\cite{veer11}.
+\end{quote}
+Even if explanations are constrained to
+ (say) just a few hundred examples taken from the Pareto
+frontier, this can still confuse the user.
+ Valerdi notes that it can take days for
+panels of human experts to rigorously review even a few dozen
+examples~\cite{valerdi11}.  
+For example, once had a 
+client who disputed the results of our  analysis.
+They
+demanded to  audit the reasoning but
+ when we delivered the 
+of candidate solutions on the Pareto frontier,
+they were overwhelmed by
+the amount of information.  Flustered,
+the client discounted the  analysis
+and rejected our conclusions. From this experience, we learned that
+to better support decision making in SBSE, we must better explain
+SBSE results.
+
+Other researchers have recognized the importance
+of explanation and is known to be a key factor in selecting algorithms.
+For example, in the field of machine learning,
+``each time one of our favorite 
+approaches has been applied in industry, each time the
+comprehensibility of the results, though ill-defined, has
+been a decisive factor of choice over an approach by pure
+statistical means, or by neural networks.''~\cite{ag98}.
+Analogous terms to explainability  in that community 
+are ``comprehensibility'',
+``interpretability''~\cite{maimon05} or ``understandability''~\cite{allahyari:user-oriented}.
+
+In spite of the importance attributed to the subject,
+explanation has not been extensively investigated in the context of SBSE.
+One of the few papers that does is that of 
+ Veerappa and Lieter~\cite{veerappa11} who
+clustered examples from the Pareto
+frontier (examples generated from a goal graph representation of requirements
+for London ambulance services). In this approach,
+``instead of having to inspect a large
+number of individual solutions, (users) can look at a
+much smaller number of groups of related solutions,
+and focus their attention on the important
+characteristics of the group rather than the
+particularities of their individual solutions''~\cite{veerappa11}. 
+
+XXXX
+
+While an insightful study, we are concerned with
+three issues about the Veerappa and Lieter study: (a)~the complexity
+of clustering; (b)~erroneous conclusions could be generated from the users 
+inspection of the clusters; (c)~introduced by users
+incorrectly evaluation the value of generated recommendations.
+ Veerappa and Lieter did not evaluate the effects
+of the recommendations that could be generated by users browsing their
+clusters. 
+Also, their method could suffer from scalability issues since it
+a post-processor
+to a clustering algorithm (clustering is a slow process  requiring
+ say, $O(N^2)$ comparisons
+for the greedy agglomerate clustering algorithm used in that paper~\cite{koc11b}).
+
+Accordingly, in this paper, when:
+\be
+\item Cluster using a near-linear time algorithm;
+\item Then, when we infer some recommendations from the clusters,
+we impose those recommendation back onto the model inputs in order to generate
+more outputs. 
+\ee
+As a starting point in this exploration of explanation,
+it is important to distinguish between the
+(1)~problem of explaining the output of an
+multi-objective optimizer (discussed in this paper);
+from the more complex problem of (2)~explaining how
+that output was generated.  To put that in a more
+colloquial form, we seek to explain eggs, but not
+the chicken.
+
+Next, a definition of  ``explanation'' is required such that:
+\be
+\item An explanation system can be designed;
+\item It is possible to distinguish a  ``good'' for a ``bad'' explanation.
+\ee
+In the SE literature,
+the general consensus in
+software engineering is that ``good'' explanations
+are succinct explanations.  
+
+Yet MOEAs fail on that
+criteria. XXX
+
+Cognitive science theory argues that
+there is more to ``explaining'' something that just
+showing it succinctly. According to Kelly's personal
+construct theory (PCT) humans explain things via
+``constructs'' that distinguish sets of examples~\cite{kelly55}.
+So, for Kelly, human explanations are not about
+``things'' in isolation but rather the {\em
+differences between groups of things}. In data mining, finding
+differences between things is called {\em contrast set learning}~\cite{webb09}.
+Previously, work on
+constrast learning for single goal SE problems
+ found that very succinct contrast sets could be generated by 
+\bi
+\item Building a decision tree to separate the different outcomes;
+\item Identifying leaves containing desired outcome $X$ and undesired outcome $Y$;
+\item Querying that tree to find branches $B_x$ and $B_y$ that lead to
+$X,Y$.
+\item Computing  $B_x - B_y$ which   selects/rejects for
+desired/undesired outcomes.
+\ei
+In one spectacularly successful demonstration of this technique~\cite{me03c}, it was found decision trees with 6,000 nodes had much
+superfluous information that was not useful
+for  distinguishing
+desired and undesired outcomes.   
+Using contrast set learning, the data that generated those
+decisions trees generated
+one
+contrast   with only four variables in each (and when
+applied to test data, that contrast
+e was successful
+at pruning away all the undesired outcomes). Other studies
+with other data sets~\cite{me07} 
+confirmed the {\bf
+the law of tiny constrasts}:  {\em 
+the minimal constrast set between things is usually much smaller
+than a complete description of those things.}
+
+
+Other  work by Leake characterized explaination as
+
+Current MOEA algorithms are ``instance-based methods'' that return
+specific examples that perform ``best'' with respect to the multiple goals.
+The number of examples generated in this way can be overwhelming.
+
+If a user wants to learn general principles from those examples,
+some secondary {\em explanation} process is required to group and generalize those
+examples.
+For example,  Veerappa and Lieter~\cite{veerappa11} clustering examples from the Pareto
+frontier so users (at a minimum) need only browse the centroids of each clusters).
+
+
+
 GAs flat vectors, not the trees explored by by ()say) Gouse et al.
 
 Goals is performance just as good but explain better
 
-\section{Motivating Example}
+One caveat before beginning: if the audience for the
+results of optimization are not human beings, then
+perhaps an explanation systems is not required. For
+example, Petke, Harman, Langdon, \&
+Weimer~\cite{petke14} use evolutionary methods to
+rewrite code such that the new code executes
+faster. The audience for the rewritten code is a
+compiler. Such compilers do not argue or and ask
+questions about the code they are given to process.
+Hence, that rewrite system does not necessary need
+an explanation system.  That said, a succinct and
+useful description of the difference between passing
+and failing runs of the rewrite system could be
+useful when (e.g.) a human is trying to debug that
+code rewrite system.
+
+Yet another model of ``explanation'' not explored
+here is the ``surprise modeling'' approach
+recommended by Voinea\&Tulea~\cite{voinea07} and
+others including Horvitz~\cite{horvitz05}. In that
+approach, (a)~some background knowledge
+(e.g. summaries of prior actions by users) is used
+to determine ``normal'' behavior; (b)~users are only
+presented results that deviated from normal
+expectations. In analogous research,
+Koegh~\cite{keogh05} argues that {\em time series
+  discords} (infrequent sequential events in a times
+series) are a useful way to summarize reports from
+complex temporal streams. The premise of surprise
+modeling and reporting discords is that ``rare
+events need to be explored''.  We do not dispute the
+importance of exploring such outliers.  On the other
+hand, when forming policies for software projects,
+we need treatments that are well supported by the
+data. Hence, our contrast sets report changes in the
+data that, in our data, were {\em frequently} seen to
+lead to change.
+
+Another potential issue with CT0 is
+correlation-vs-causation conflation. The issue here
+is that contrast sets will be useless if they
+report spurious correlations and not true causal
+effects.  Proving that some effect is truly causal
+is a non-trivial task.  The standard Hall criteria
+for causal effects~\cite{paul13} is so strict that,
+outside of highly controlled lab conditions, it
+rarely accepts that any effect is causal.  Hence, in
+software engineering, when researchers talk of
+causality~\cite{couto14,zheng14z,huber09,bhat!icse12}
+they use Granger's ``predictive causality'';
+i.e. causality is the ability of predicting
+values seen in the future from values seen in the
+past.  Elsewhere, Granger causality has been adapted
+to data mining by organizing cross-validations such
+that the test sets contain data collected at a later
+time than the training sets~\cite{me11f}.  In this
+paper, we adapt Granger casualty to search-based
+methods by testing recommendations learned from $M$
+simulations on a subsequent round of $N$ new
+simulations.  Those recommendations satisfy Granger
+causality when the subsequent round of $N$
+simulations are changed in a manner predicted by the
+recommendations gleaned from the original $M$
+simulations.
+
+``Data farming'' is a technique used extensively by the
+U.S. Military~\cite{meyer04}.
+Data farming builds a ``landscape''
+of output that can be analyzed for trends, anomalies, and insights in
+multiple parameter dimensions.  
+In  a recent review of search-based and data mining methids in SE,
+we found numerous examples
+of data farming~\cite{strickland03,Myrtveit,Shepperd01,pearce99,vanlamsweerde98integrating,chung00,me03j,heaven11,rodriguez11,jian09}.
+
+In theory. Once a project manager can view their project on the landscape,
+they can use this visualization to determine
+
 We come to this work after attending a recent seminar at the US 
 Department of Defence's Software Engineering Institute (SEI), Pittsburgh, USA.
 That seminar reflected on how to best broadcast the lessons learned by SEI
@@ -436,57 +723,13 @@ journal articles \cite{jour}, an LNCS chapter \cite{lncschap}, a book
 Please note that proceedings published in LNCS are not cited with their
 full titles, but with their acronyms!
 
-\begin{thebibliography}{4}
 
-\bibitem{jour} Smith, T.F., Waterman, M.S.: Identification of Common Molecular
-Subsequences. J. Mol. Biol. 147, 195--197 (1981)
-
-\bibitem{lncschap} May, P., Ehrlich, H.C., Steinke, T.: ZIB Structure Prediction Pipeline:
-Composing a Complex Biological Workflow through Web Services. In: Nagel,
-W.E., Walter, W.V., Lehner, W. (eds.) Euro-Par 2006. LNCS, vol. 4128,
-pp. 1148--1158. Springer, Heidelberg (2006)
-
-\bibitem{book} Foster, I., Kesselman, C.: The Grid: Blueprint for a New Computing
-Infrastructure. Morgan Kaufmann, San Francisco (1999)
-
-\bibitem{proceeding1} Czajkowski, K., Fitzgerald, S., Foster, I., Kesselman, C.: Grid
-Information Services for Distributed Resource Sharing. In: 10th IEEE
-International Symposium on High Performance Distributed Computing, pp.
-181--184. IEEE Press, New York (2001)
-
-\bibitem{proceeding2} Foster, I., Kesselman, C., Nick, J., Tuecke, S.: The Physiology of the
-Grid: an Open Grid Services Architecture for Distributed Systems
-Integration. Technical report, Global Grid Forum (2002)
-
-\bibitem{url} National Center for Biotechnology Information, \url{http://www.ncbi.nlm.nih.gov}
-
-\end{thebibliography}
+{\scriptsize
+\bibliographystyle{abbrv}
 
 
-\section*{Appendix: Springer-Author Discount}
-
-LNCS authors are entitled to a 33.3\% discount off all Springer
-publications. Before placing an order, the author should send an email
-to \url{SDC.bookorder@springer.com}, giving full
-details of his or her
-Springer publication, to obtain a so-called token. This token is a
-number, which must be entered when placing an order via the Internet, in
-order to obtain the discount.
-
-\section{Checklist of Items to be Sent to Volume Editors}
-Here is a checklist of everything the volume editor requires from you:
-
-
-\begin{itemize}
-\settowidth{\leftmargin}{{\Large$\square$}}\advance\leftmargin\labelsep
-\itemsep8pt\relax
-\renewcommand\labelitemi{{\lower1.5pt\hbox{\Large$\square$}}}
-
-\item The final \LaTeX{} source files
-\item A final PDF file
-\item A copyright form, signed by one author on behalf of all of the
-authors of the paper.
-\item A readme giving the name and email address of the
-corresponding author.
-\end{itemize}
+%\let\oldbibliography\thebibliography
+%\renewcommand{\thebibliography}[1]{\oldbibliography{#1}
+%\setlength{\itemsep}{0pt}} %Reducing spacing in the bibliography.
+\bibliography{refs}}
 \end{document}
