@@ -116,44 +116,45 @@
 
 
 \begin{abstract}
-CT0 is very fast  algorithm for finding trade-offs in multi-objective problems.
-A human inspecting those explanations 
-can quickly infer changes
-that can improve their situation. 
-This paper evaluates those explanations using data
+CT0 is an algorithm for summarizing trade-offs in multi-objective problems.
+From that summary, humans can read recommendations for their systems.
+This paper evaluates those recommendations using data
 generated from   (a) the POM3 model of agile selection
-of tasks; (b) four COCOMO-suite predictors for effort, months, defects and risk.
-CT0 ran orders of magnitude faster than standard
-optimizers  (e.g. 3 seconds vs 150 seconds).
-Also, the  generated 
-explanations were as effective for optimization
-as the results of standard multi-objective
-optimizers (NSGA-II and SPEA2). 
+of tasks; (b) four COCOMO-suite predictors for software
+development effort, months, defects and risk.
 
-Based on this study, we recommend CT0 
-when some succinct summary has to be rapidly generated (e.g.  in some interactive
-design meeting). CT0 could also be useful as post-processor
-to other optimizers (to generate succinct explanations of their
-conclusions) or as a
-optimizer to other optimizers (by constraining those other optimizers
-to only search the regions recommended by CT0).
+CT0 is a very fast algorithm- both theoretically and empirically.
+For example, for the COCOMO-suite models, CT0 terminated
+in 3 seconds while standard optimizers (NSGA-II and SPEA2)
+took 150 seconds.
+Further, the  generated 
+explanations for CT0 were just as effective as from other optimizers.
+
+Hence, we recommend CT0 when some succinct summary
+has to be rapidly generated (e.g.  in some
+interactive design meeting). CT0 could also be
+useful as post-processor to other optimizers (to
+generate succinct explanations of their conclusions)
+or as a optimizer to other optimizers (by
+constraining those other optimizers to only search
+the regions recommended by CT0).
 
 \keywords{Software engineering, explanation, optimization, multi-objective.}
 \end{abstract}
 
 
 
-
+\section{Introduction}
 
 \begin{myepigraph}
 ``If you cannot- in the long run- tell  everyone what \\
  you have been doing, your  doing has been worthless.''\\
- {\em-- Erwin Schrodinger}
+ {\em-- Erwin Schr\"odinger}
 
 \end{myepigraph}
 
-\section{Introduction}
-Explaining and the results of
+
+Explaining the results of
 multi-objective optimization to a user
 can be problematic.
 A typical run of a multi-objective optimizer
@@ -187,7 +188,8 @@ to better support decision making in SBSE, we must better explain
 SBSE results.
 
 Other researchers have recognized the importance
-of explanation and is known to be a key factor in selecting algorithms.
+of explanation.
+It is known to be a key factor in selecting algorithms.
 For example, in the field of machine learning,
 ``each time one of our favorite 
 approaches has been applied in industry, each time the
@@ -212,10 +214,10 @@ and focus their attention on the important
 characteristics of the group rather than the
 particularities of their individual solutions''~\cite{veerappa11}. 
 
-XXXX
+XXXX after creating. still errors in comparisons
 
-While an insightful study, we are concerned with
-three issues about the Veerappa and Lieter study: (a)~the complexity
+While an innovative and insightful study, there
+are three open issues with that method:  (a)~the complexity
 of clustering; (b)~erroneous conclusions could be generated from the users 
 inspection of the clusters; (c)~introduced by users
 incorrectly evaluation the value of generated recommendations.
@@ -231,17 +233,19 @@ for the greedy agglomerate clustering algorithm used in that paper~\cite{koc11b}
 Accordingly, in this paper, when:
 \be
 \item Cluster using a near-linear time algorithm;
-\item Then, when we infer some recommendations from the clusters,
-we impose those recommendation back onto the model inputs in order to generate
-more outputs. 
+\item Better define the process by which recommendations are generated
+      from clusters;
+\item The generated recommendations are tested by generating more
+examples from the model {\em after} the recommendations are imposed
+as extra constraints on the model inputs.
 \ee
 As a starting point in this exploration of explanation,
 it is important to distinguish between the
 (1)~problem of explaining the output of an
 multi-objective optimizer (discussed in this paper);
 from the more complex problem of (2)~explaining how
-that output was generated.  To put that in a more
-colloquial form, we seek to explain eggs, but not
+that output was generated.  To put that another way:
+we seek to explain eggs, but not
 the chicken.
 
 Next, a definition of  ``explanation'' is required such that:
@@ -252,7 +256,7 @@ Next, a definition of  ``explanation'' is required such that:
 In the SE literature,
 the general consensus in
 software engineering is that ``good'' explanations
-are succinct explanations.  
+are succinct explanations~\cite{ag98,dej13z,fenton99
 
 Yet MOEAs fail on that
 criteria. XXX
@@ -343,13 +347,34 @@ Koegh~\cite{keogh05} argues that {\em time series
 series) are a useful way to summarize reports from
 complex temporal streams. The premise of surprise
 modeling and reporting discords is that ``rare
-events need to be explored''.  We do not dispute the
-importance of exploring such outliers.  On the other
+events need to be explored''.  
+In non-temporal domains, time series discords becomes
+{\em anomaly detection}~\cite{chandola09}. For example, in the SE domian,
+Voinea and Telea report tools that can quickly highlight regions
+of unusually active debugging (and such regions should be reviewed
+by management)~\cite{voiena07} (see also the anomaly
+detection work of Gruska et al.~\cite{gruska10}).
+
+We do not dispute the
+importance of exploring anomalous outliers.  On the other
 hand, when forming policies for software projects,
 we need treatments that are well supported by the
 data. Hence, our contrast sets report changes in the
 data that, in our data, were {\em frequently} seen to
-lead to change.
+lead to change. 
+
+Also, time series discords and anomaly detection are reports
+on some variables. Hence, they have a different goal to CT0 that
+strives to report recommendations on how to change the system
+so to remove some problem. 
+
+Further, all the systems described
+above~\cite{voinea07,horvitz05,keogh05,gruska10} are
+either for unsupervised learning (where no
+objectives are known) or for single objective
+systems (where only one goal is known). CT0, on the
+other hand, is more ambitious since it was designed
+for multi-objective systems.
 
 Another potential issue with CT0 is
 correlation-vs-causation conflation. The issue here
