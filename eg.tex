@@ -1,1 +1,136 @@
-Here at SEI
+\subsection{Our Problem}
+To motivate this work, we offer the real-world goal that sparked this work.
+
+The Software Engineering Institute (SEI:
+http://www.sei.cmu.edu/) at Carnegie Mellon
+University is a centralized repository for
+qualitative and quantitative data collected from
+software development for the United States
+government and Department of Defense. Developers
+across the country looked to SEI for explanations of
+what factors effect their project (these
+explanations are used to manage their current
+projects and well as propose methods on how to
+better handle their future projects in a better
+manner).  Also, large scale policy decisions about
+information technology are made by the
+U.S. government, partially in consultation with
+researchers at the SEI.
+
+It is standard for the
+SEI to issues ``fact sheets'' explaining their
+lessons learned as well as explaining their advise
+on best practice. These explanations are short
+reports (rarely more than both sides of one piece of
+paper) which are intended to give busy managers
+quick guidance for their projects.  In the case of
+quantitative data, these explanations may
+contain some 2D plot showing how one
+objective  (e.g. defects) changes in
+response to changes in one input variable
+(e.g. lines of code).
+
+The veracity of these simple plots
+of SE data is questionable. Even
+for single goal reasoning such as defect reduction,
+there  can only be  poorly
+characterized via one input variable.  Menzies et
+al. compared learners building models with $N=1$
+of $N>1$ input variables: the models that used more
+than one input performed better~\cite{me07b}.
+
+Further, there are many recent SE research publications that
+propose multiple competing goals for SE models; e.g.
+\bi
+\item 
+Build software
+{\em faster} using {\em less} effort with {\em fewer} bugs~\cite{elrawas10};
+\item
+Return defect predictors that find {\em most} defects in the {\em smallest}
+parts of the code~\cite{arisholm06}.
+\ei
+As we move from single goal to
+multiple-goal reasoning, the value of these
+simplistic  plots becomes even more
+questionable. The SBSE experience is that reasoning
+and trading off between multiple goals is much more
+complex that browsing effects related to a single
+isolated goal.
+
+Worse yet, given all the context variables that can
+be used to describe different software projects, it
+is hard to believe that any {\em one} report can
+explain {\em all} the effects seen in all different
+kinds of software projects. Numerous recent reports
+in empirical SE offer the same {\em locality
+effect}; i.e. models generated using {\em all}
+available data perform differently, and often worse, than
+those learned from specific subsets~\cite{posnet11,betta12,me12d,yang13,emse12}.
+
+\subsection{Our Solution}
+
+New results suggest a resolution to the above
+problems.  Firstly, work on {\em low dimensional
+  approximations} of SE data shows we do not
+need to reason about all the context variables
+(since many are redundant or noisy). When applied to
+SBSE, low dimensional approximations can
+guide mutation strategies to find
+better solutions one to two orders of magnitude
+faster than standard evolutionary
+optimizers~\cite{krall14,krall14b}.
+
+Secondly, work on MOEA/D (multi-objective
+evolutionary algorithms with decomposition~\cite{zhang07:TEC}) has
+shown the benefits of dividing  problems into multiple cells, then 
+optimizing each cell separately.  Note
+that this approach is analogous (and actually
+pre-dates) the locality work mentioned above.
+
+The rest of this paper reports an experiment where we generate explanations
+of the forces that impact a software project by combining
+{\em decomposition} with {\em low dimensional approximations}. That system
+has five parts:
+\be
+\item
+WHERE is Menzies'  near-linear time clustering algorithms~\cite{me12d}  which we use to
+decompose
+data from models of SE processes into many small clusters;
+\item 
+CART is Brieman's decision tree learner~\cite{breiman84} which we use
+to generate finds branches (conjunctions of {\em
+  attribute=value} pairs) that most distinguish the
+different clusters.
+\item
+CT0 is our post-pruner to CART that shrinks the size of the generated trees.
+\item 
+ENVY looks around cluster $C_0$ to  find a near cluster $C_1$  
+with better objective scores.
+\item
+CON is a  contrast-set learner that reports the difference between the
+decision tree branches that end at $C_0$ and $C_1$. 
+The output of CON is the {\em recommendation} for how we would improve all the examples in $C_0$.
+\ee
+Menzies has used combination of WHERE+ENVY has been used previously for finding context-specific
+rules for single-objective reasoning (reducing defects or software development effort~\cite{me12d}).
+What is new here is the addition of CART+COM as well as the application to multiple-objective reasoning.
+
+Return now to writing fact sheets from the SEI, we note that:
+\bi
+\item
+CT0 generates very small trees (10 to 20 lines);
+\item
+ENVY and CON are very simple algorithms
+that can be applied by humans while manually browsing CT0's trees;
+\item
+The experiments shown below demonstrate that CON's recommendation are just as effective
+at changing objective scores as 
+the optimization methods of standard multi-objective optimizers 
+(NSGA-II~\cite{deb00a} and SPEA2~cite{zit02}).
+\ei
+Hence, we propose a modification to SEI's fact sheet:
+they should old the trees
+generated by WHERE+CART+CT0. From these, 
+business users can explore for themselves the effects in SEI's data.
+
+
