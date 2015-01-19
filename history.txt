@@ -1,5 +1,7 @@
 Version history for the LLNCS LaTeX2e class
 
+other stuf
+
  date     filename      version   action/reason/acknowledgements
 ----------------------------------------------------------------------------
  29.5.96  letter.txt      beta    naming problems (subject index file)
