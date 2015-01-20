@@ -1,1 +1,59 @@
-about this stuff
+This section describes WHERE+CART+ENVY+DELTA.
+
+\subsection{WHERE}
+WHERE inputs a set of $N$ examples, each of which is a set of decisions $D$
+mapped to a set of objectives  $O$, so $N_i= (D,O)$ (and usually $D>1$ and $O>1$ and 
+$O<D$).
+WHERE clusters the examples on the decisions and reports the average objective
+scores for each objective in each cluster.
+
+WHERE uses a dimensionality reduction heuristic proposed by
+Faloutsos and Lin~\cite{Faloutsos1995}. The method 
+inputs
+$N$
+examples $N_1,N_2,..$. Next, WHERE
+picks any
+point $N_i$ at random. Thirdly, WHERE
+finds the point  {\em West}~$\in N$ that is
+furthest\footnote{
+ For this work, we use the standard Euclidean measure recommended for
+instance-based reasoning by Aha et al.~\cite{aha91};
+i.e. $\sqrt{\sum_i(x_i-y_i)^2}$ where $x_i,y_i$ 
+are values normalized 0..1 for the range min..max.}
+from $N_i$.
+Finally, WHERE
+finds the point {\em East}~$\in N$
+that is furthest from {\em West} (and 
+$c=\mathit{dist}(\mathit{West},\mathit{East})$).
+
+To recursively cluster the data, WHERE iterates over $N_i \in N$
+to find
+\mbox{$a=\mathit{dist}(N_i,\mathit{West})$},
+\mbox{$b=\mathit{dist}(N_i,\mathit{East})$},
+\mbox{$x=(a^2 + c^2 - b^2)/(2c)$}.
+This  $x$ value is the projection of $N_i$
+on the line  running  {\em East} to {\em West}.  WHERE divides
+the examples on the median $x$ value,
+then recurses on each half. 
+Recursion on
+$N$ initial
+examples stops when a sub-region
+contains less that  $M$ examples (e.g. 
+$M=\sqrt{N}$).
+
+Note that this four-step  
+process requires only $2N$ distance comparisons
+per level of recursion and one call to a sorting routine
+to find the median value. 
+The total time for WHERE is some linear multiple of the sorting time
+used to find the median at each level.
+Assuming sorting takes time $O(NlogN)$, then we can say 
+that WHERE runs in near linear time
+(and not the $O(N^2)$ required for 
+other clustering algorithms such as K-Means~\cite{hamerly2010making}).
+
+\subsection{CART}
+
+\subsection{ENVY}
+
+\subsection{DELTA}
