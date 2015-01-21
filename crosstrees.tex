@@ -45,7 +45,7 @@
 \newcommand{\eq}[1]{Equation~\ref{eq:#1}}
 \newcommand{\tion}[1]{\S\ref{sec:#1}}
 
-
+\usepackage{wrapfig}
 \usepackage[small,compact]{titlesec}
 
 
@@ -73,13 +73,13 @@
 
 
 \begin{document}
-
+%
 
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{Finding Explanations for Multi-Objective Optimization
-(in Near-Linear Time)}
+\title{Wickedly fast Explanation Generation
+for Multi-Objective Optimization}
 
 % a short form should be given in case it is too long for the running head
 \titlerunning{SSBSE'15}
@@ -116,28 +116,29 @@
 
 
 \begin{abstract}
-CT0 is an algorithm for summarizing trade-offs in multi-objective problems.
+WICKED is a near linear-time 
+algorithm for summarizing trade-offs in multi-objective problems.
 From that summary, humans can read recommendations for their systems.
 This paper evaluates those recommendations using data
 generated from   (a) the POM3 model of agile selection
 of tasks; (b) four COCOMO-suite predictors for software
 development effort, months, defects and risk.
 
-CT0 is a very fast algorithm- both theoretically and empirically.
-For example, for the COCOMO-suite models, CT0 terminated
-in 3 seconds while standard optimizers (NSGA-II and SPEA2)
-took 150 seconds.
-Further, the  generated 
-explanations for CT0 were just as effective as from other optimizers.
+WICKED runs orders of magnitude faster than  standard optimizers (NSGA-II and SPEA2). For example, for one of our larger models,
+WIcKET and NSGA-II terminated in 
+3 and 150 seconds.
+Further,  WICKED's recommendations
+ were just as effective at improving objective
+scores as the actions of standard  optimizers.
 
-Hence, we recommend CT0 when some succinct summary
+Hence, we recommend WICKED when some succinct summary
 has to be rapidly generated (e.g.  in some
-interactive design meeting). CT0 could also be
+interactive design meeting). WICKED could also be
 useful as post-processor to other optimizers (to
 generate succinct explanations of their conclusions)
 or as a optimizer to other optimizers (by
 constraining those other optimizers to only search
-the regions recommended by CT0).
+the regions recommended by WICKED).
 
 \keywords{Software engineering, explanation, optimization, multi-objective.}
 \end{abstract}
@@ -239,6 +240,15 @@ Accordingly, in this paper, when:
 examples from the model {\em after} the recommendations are imposed
 as extra constraints on the model inputs.
 \ee
+
+XXXX
+One result from this work that may surprise the reader is that our ``explanation'' system is anctually
+an inference procedure as well.
+While our approach could be used as an add-on to other MOEA systems (to augment their reasoning with post-hoc explanations),
+it actually is a viable MOEA in its own right. Research results from cognitive science explain why this is so: 
+according to Leake~\cite{XXX}, explanation is actually an inference procedure in its own right where different
+audiences ``explain'' some phenonomeom in different ways according to their own goals and background knowledge
+
 
 \section{A Motivating Example}
 \input{eg}
@@ -472,7 +482,7 @@ data that, in our data, were {\em frequently} seen to
 lead to change. 
 
 Also, time series discords and anomaly detection are reports
-on some variables. Hence, they have a different goal to CT0 that
+on some variables. Hence, they have a different goal to WICKED that
 strives to report recommendations on how to change the system
 so to remove some problem. 
 
@@ -480,11 +490,11 @@ Further, all the systems described
 above~\cite{voinea07,horvitz05,keogh05,gruska10} are
 either for unsupervised learning (where no
 objectives are known) or for single objective
-systems (where only one goal is known). CT0, on the
+systems (where only one goal is known). WICKED, on the
 other hand, is more ambitious since it was designed
 for multi-objective systems.
 
-Another potential issue with CT0 is
+Another potential issue with WICKED is
 correlation-vs-causation conflation. The issue here
 is that contrast sets will be useless if they
 report spurious correlations and not true causal
