@@ -18,6 +18,20 @@
 
 \documentclass[runningheads]{llncs}
 
+\usepackage{colortbl}
+
+\usepackage{textcomp}
+
+%quarts
+\usepackage{colortbl} % not sure if needed
+\usepackage[table]{xcolor} % not sure if needed
+
+%%%% needed %%%
+\usepackage{picture}
+\newcommand{\quart}[3]{\begin{picture}(100,6)%1
+{\color{black}\put(#3,3){\circle*{4}}\put(#1,3){\line(1,0){#2}}}\end{picture}}
+
+
 \usepackage{amssymb}
 \usepackage{cite}
 \setcounter{tocdepth}{3}
@@ -260,6 +274,8 @@ audiences ``explain'' some phenonomeom in different ways according to their own 
 \section{Code}
 \input{algo}
 
+\section{Methods}
+\input{methods}
 \section{Results}
 \input{results}
 
