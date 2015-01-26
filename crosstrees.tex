@@ -297,73 +297,98 @@ construct theory (PCT) humans explain things via
 ``constructs'' that distinguish sets of examples~\cite{kelly55}.
 So, for Kelly, human explanations are not about
 ``things'' in isolation but rather the {\em
-differences between groups of things}. In data mining, finding
-differences between things is called {\em contrast set learning}~\cite{webb09}.
-Much prior work has shown that the minimal contrast set that most
-distinguishes two populations  can be very small 
-indeed~\cite{me03c,hu02,me07,ying02}. 
+differences between groups of things}. 
 
-\begin{wrapfigure}{r}{3in}
-\includegraphics[width=3in]{4WAY.png}
-\caption{WHERE4 is a spectral learner~\cite{kamvar03}  that eschews
-raw dimensions, focusing instead on just the dimensions that
-most seperate the data.
-WHERE4 divides data four ways, then recurses on each split.
+\begin{wrapfigure}{r}{2.3in}
+\includegraphics[width=2.3in]{4WAY.png}
+\caption{WHERE4. Each dot is
+one set of decisions (inputs to a multi-objective model).
+WHERE4 recurses on each of the right-hand-side clusters.
 }\label{fig:4WAY}
 \end{wrapfigure}
-Two of WICKED operators (INFOGAIN and DELTA)
-directly apply Kelly's theory in order to generate succinct explanations
-INFOGAIN is run as after we cluster the data,
-so we first review that clustering technique.
+WICKED employees several techniques to operationalize
+Kelly's theory.  Using {\em cluster and
+  differentiate}, data is clustered and the
+subsequent reasoning is restricting to only the
+attributes that seperate those clusters. Next,
+using only the attributes found by cluster and differentiate,
+ {\em contrast set learning}~\cite{webb09} 
+(a)~build rules to different clusters,
+(b)~find pairs of clusters {\em worse, better}, then
+(c)~report the delta between the branch to {\em worse} and
+the branches to {\em better}.
 
-The WHERE4 cluster inputs $N$ examples, each of which is a pair of
-decisions $D$ and objective scores $O$ (and since this is multi-objective
-reasoning, $|D| \ge 1$. WHERE4 clusters the examples base don the decisions
-as follows. 
-As shown in the {\em
-before}  WHERE4 finds a dimension {\em dim1} that
-joins  two distance points in the data (see the line at $40^o$ to the x-axis).
-An orthogonal dimension {\em dim2} is then synthesized and data is split
-four ways on the median value of the two dimensions (which generate the
-four {\em after} data sets shown in that figure). This process recurses
-till the splits are less than $\sqrt{N}$ of the original population.
-WHERE4 is very fast since it uses an $O(2N)$ heuristic to find the
-distant points (pick any point at random; find {\em East},
-the most distance point; find {\em West}, the most distant point to {\em East})\footnote{
- For distance, we use Euclidean measure recommended for
-instance-based reasoning by Aha et al.~\cite{aha91};
-i.e. $\sqrt{\sum_i(x_i-y_i)^2}$ where $x_i,y_i$ 
-are decisions values normalized 0..1 for the range min..max.
-All point $p$ are then projected to an x-y point as follows. If the
-distance {\em East} to {\em West} is $c$, then
-\mbox{$a=\mathit{dist}(p,\mathit{West})$},
-\mbox{$b=\mathit{dist}(p,\mathit{East})$},
-\mbox{$x=(a^2 + c^2 - b^2)/(2c)$},
-\mbox{$y=\sqrt{a^2 - x^2}$}.}.
+\underline{{\em WHERE4: }}
+WICKED's clusterer~\cite{me12d}
+inputs a set of decisions
+$d_1,d_2...$, each of which specifies
+inputs to a multi-objective model.
+It separate the decisions along an
+approximate dimension
+of greatest variability: a line joining two very dissimilar
+decisions). This can be found in linear
+time after just $2N$ comparisons,
+using a technique proposed by Faloutsos and Lin~\cite{Faloutsos1995}: 
+ pick any decision $d_i$ at random; find {\em East},
+the most distance decision $d_j$; find {\em West}, the most distant 
+distance $d_k$ to {\em East}\footnote{
+ For distance, we use Aha's Euclidean measure~\cite{aha91};
+i.e. $\sqrt{\sum_x(d_{ix}-d_{jx})^2}$ where $d_{ix},d_{jx}$ 
+are decisions values normalized 0..1 for the range min..max.}.
+Next, project all  decisions $d_i$ onto a two-dimensional
+$(x,y)$ grid as follows:  
+$a=\mathit{dist}(d_i,\mathit{West})$;
+$b=\mathit{dist}(d_i,\mathit{East})$;
+$c=\mathit{dist}(\mathit{East},\mathit{West})$;
+$x=(a^2 + c^2 - b^2)/(2c)$;
+$y=\sqrt{a^2 - x^2}$.
+As illustrated in \fig{4WAY},
+WHERE4 then clusters the decisions on the median $x,y$ values
+and recurses on each cluster (division of $N$ examples terminates
+when a cluster contains less than $\sqrt{N}$).
 
-Once clustering terminates, following on from Kelly's research,
-we then say that the only attributes that matter in an explanation
-are the ones
-that distinquish the clusters. We can find those attributes using INFOGAIN.
-Each numeric decision is then sorted and divided at the point
-that most reduces the number of different clusters XXX before and after the
-division. The divisions are then  and divided after each value. 
-The set of clusters
-that have decisionsusing the range before and after each division is then
-collected.
+\underline{{\em INFOGAIN:}} To find attributes that differentiate between clusters,
+WICKED uses the INFOGAIN entropy measure adapted from
+Fayyad and Irani~\cite{FayIra93Multi}\footnote{For the reader
+who knows that work, we comment that standard
+FayyadIrani did not work for our models. We had to disable
+the MDL pruning of sub-ranges since, for an optimizer to explore  small
+and interesting ranges of simulation data, it is necessary
+to let it ``take a chance'' on regions of the data that might not
+be strongly supported by many examples.}. The values seen in $N$
+decisions are sorted, then recursively split at points that
+most simplifies the cluster distributions that use the values
+in each part of the split. To measure simplicity, we use the
+standard entropy measure. Let a split divides a decision's
+values into two
+lists  $v_1,v_2$ of size $n_1,n_2$. Let  the total counts
+of cluster $c_k$ that use an element of $v_i$ be $c_{ik}$
+and 
+$p_{ik} = c_{ik}/n_i$. The entropy $e_i$ of the list $v_i$ can now be computed
+as 
+$-\sum_{k}p_{ik}log_2{p_{ik}}$ and the expected value of the simplicity
+of a list after splitting is 
+\mbox{$n_1/n*e_1 + n_2/n*e_2$} (where $n=n_1 + n_2$)
+and {\em lower} values are {\em better} since they contain {\em fewer}
+clusters.
+Using this method, WICKED's INFOGAIN operator ranks 
+all attributes according to the  simplicity of their associated
+cluster distribution. It then rejects all but the simplest
+25\% of the decisions and all subsequent reasoning in WICKED
+uses just this small set of decisions that most distinguish
+the cluster of decisions. Note that, like WHERE4, INFOGAIN is
+also very fast to execute: after an initial top-level 
+$O(nlog(n))$
+sort of the decision values, the rest is just a
+few linear
+passes through the data.
 
- we say that the only decisions 
-
-As to INFOGAIN, this i
-INFOGAIN
-is the classic entropy-based decision
-
-
-
-
-Firstly, WICKED's clustering algorithm 
-
-One technique for generating small 
+\underline{{\em CART:}} Recall that in our
+operationalization of Kelly's theory,
+after {\em differentiate and
+contrast} (with
+WHERE4 and INFOGAIN), comes {\em constrast set learning}
+(with CART,KILL,ENVY and DELTA).
 
 Apart from succinctness, 
 cognitive science theory argues that
