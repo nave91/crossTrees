@@ -1,3 +1,55 @@
+
+
+WICKED's approach is to reply on {\em low dimensional
+  approximations} and 
+{\em multi-objective
+evolutionary algorithms} with decomposition
+Recent studies on 
+of SE data show we do not
+need to reason about all the context variables
+(since many are redundant or noisy). When applied to
+SBSE, low dimensional approximations can
+guide mutation strategies to find
+better solutions one to two orders of magnitude
+faster than standard evolutionary
+optimizers~\cite{krall14,krall14b}.
+Secondly, work on MOEA/D~\cite{zhang07:TEC}
+has
+shown the benefits of dividing  problems into multiple cells, then 
+optimizing each cell separately.  Note
+that this approach is analogous (and actually
+pre-dates) work mentioned above on locality and context.
+
+One way to describe the WICKED system is as a  near-linear time variant on MOEA/D.
+
+
+~\cite{zhang07:TEC})
+WICKED began as an experiment with low-dimensional MOEA/D.r
+
+{\scriptsize
+\begin{alltt}
+if cplx \(\le\) 1.1:                          Effort  Months   Defect Risk
+.. if resl \(\le\) 3.2:
+.. .. if pvol \(\le\) 1.1:
+.. .. .. if site \(\le\) 1.0:
+.. .. .. ..  then: ['__25']  #                 ?      ?        ?      ?
+.. .. .. ..  else: ['__20']  #          d      ?      ?        ?      ?
+.. .. if rely \(\le\) 1.0:
+.. .. .. if pcap \(\le\) 0.9:
+.. .. .. .. if ltex \(\le\) 1.0:
+.. .. .. .. .. if site \(\le\) 1.0:
+.. .. .. .. .. ..  then: ['__3']  #     a     ?        ?      ?       ?
+.. .. .. .. .. ..  else: ['__1']  #     c     ?        ?      ?       ?
+.. .. .. .. .. else: ['__6']  #        b      ?        ?      ?       ?
+.. .. .. .. if ltex \(\le\) 1.0:
+.. .. .. .. .. if pmat \(\le\) 3.9:
+.. .. .. .. .. ..  then: ['__15']  #         ?        ?      ?       ?
+.. .. .. .. .. else: ['__15']  #       e     ?        ?      ?       ?
+\end{alltt}}
+%cplx resl pvol site reply pcal ltex pmat
+
+
+
 This section describes WHERE+CART+ENVY+DELTA.
 
 \subsection{WHERE}

@@ -31,6 +31,7 @@
 \newcommand{\quart}[3]{\begin{picture}(100,6)%1
 {\color{black}\put(#3,3){\circle*{4}}\put(#1,3){\line(1,0){#2}}}\end{picture}}
 
+\renewcommand{\labelitemi}{$\bullet$}
 
 \usepackage{amssymb}
 \usepackage{cite}
@@ -49,8 +50,8 @@
   {\par\hfill\itshape
    \begin{tabular}{@{}r@{}}} % 2em from the right margin
   {\end{tabular}\par\medskip}
-
-
+\newcommand{\bull}{$bullet$}
+\usepackage{enumitem}
 \newcommand{\bi}{\begin{itemize}}
 \newcommand{\ei}{\end{itemize}}
 \newcommand{\be}{\begin{enumerate}}
@@ -72,7 +73,7 @@
  \usepackage[font={small}]{caption, subfig}
  \renewcommand{\figurename}{Fig.}
  \renewcommand{\tablename}{Tab.}
-\usepackage{enumitem}
+
 \setlength{\abovecaptionskip}{1ex}
  \setlength{\belowcaptionskip}{1ex}
  \setlength{\floatsep}{1ex}
@@ -133,27 +134,28 @@ for Multi-Objective Optimization}
 \begin{abstract}
 WICKED is a near linear-time 
 algorithm for summarizing trade-offs in multi-objective problems.
-From that summary, humans can read recommendations for their systems.
+Humans can read that summary to find recommendations for their systems.
 This paper evaluates those recommendations using data
-generated from   (a) the POM3 model of agile selection
-of tasks; (b) four COCOMO-suite predictors for software
+ from   (a) the POM3 model of agile selection
+of tasks; (b) the COCOMO-suite predictors for software
 development effort, months, defects and risk.
-
-WICKED runs orders of magnitude faster than  standard optimizers (NSGA-II and SPEA2). For example, for one of our larger models,
-WIcKET and NSGA-II terminated in 
-3 and 150 seconds.
-Further,  WICKED's recommendations
- were just as effective at improving objective
+ WICKED's recommendations 
+ were found to be just as effective at improving objective
 scores as the actions of standard  optimizers.
 
-Hence, we recommend WICKED when some succinct summary
+
+WICKED runs orders of magnitude faster than  standard optimizers. For example, for one of our larger models,
+WICKET and NSGA-II terminated in 
+3 and 150 minutes, respectively.
+Hence, we recommend WICKED when a succinct summary
 has to be rapidly generated (e.g.  in some
-interactive design meeting). WICKED could also be
-useful as post-processor to other optimizers (to
-generate succinct explanations of their conclusions)
-or as a optimizer to other optimizers (by
-constraining those other optimizers to only search
-the regions recommended by WICKED).
+interactive design meeting). 
+%WICKED could also be
+%useful as post-processor to other optimizers (to
+%generate succinct explanations of their conclusions)
+%or as a way to speed up other optimizers (by
+%constraining those  optimizers to  search
+%the regions recommended by WICKED).
 
 \keywords{Software engineering, explanation, optimization, multi-objective.}
 \end{abstract}
@@ -163,15 +165,14 @@ the regions recommended by WICKED).
 \section{Introduction}
 
 \begin{myepigraph}
-``If you cannot- in the long run- tell  everyone what \\
- you have been doing, your  doing has been worthless.''\\
- {\em-- Erwin Schr\"odinger}
-
+``If you cannot- in the long run- tell  everyone what you have\\
+been doing, your  doing has been worthless.'' {\em-- Erwin Schr\"odinger}
 \end{myepigraph}
-
-
-Explaining the results of
-multi-objective optimization to a user
+\noindent
+To better support decision making in SBSE, we must better explain
+SBSE results.
+Explaining the results of these
+multi-objective optimizers to a user
 can be problematic.
 A typical run of a multi-objective optimizer
 can process thousands to millions of examples.
@@ -182,7 +183,7 @@ from so many results. Verrappa and Leiter warn that
 ``..for industrial problems, these algorithms generate
 (many) solutions, which makes the tasks of
 understanding them and selecting one among them
-difficult and time consuming''~\cite{veer11}.
+difficult and time consuming''~\cite{veerappa11}.
 \end{quote}
 Even if explanations are constrained to
  (say) just a few hundred examples taken from the Pareto
@@ -190,38 +191,33 @@ frontier, this can still confuse the user.
  Valerdi notes that it can take days for
 panels of human experts to rigorously review even a few dozen
 examples~\cite{valerdi11}.  
-For example, once had a 
-client who disputed the results of our  analysis.
-They
-demanded to  audit the reasoning but
- when we delivered the 
+For example, once we had a 
+client 
+demanding to  audit our SBSE reasoner.
+ When we delivered the 
 of candidate solutions on the Pareto frontier,
 they were overwhelmed by
 the amount of information.  Flustered,
-the client discounted the  analysis
-and rejected our conclusions. From this experience, we learned that
-to better support decision making in SBSE, we must better explain
-SBSE results.
+the client discounted our  analysis.
+
 
 Other researchers have recognized the importance
 of explanation.
-It is known to be a key factor in selecting algorithms.
 For example, in the field of machine learning,
+it is known to be a key factor in selecting algorithms.
 ``each time one of our favorite 
 approaches has been applied in industry, each time the
 comprehensibility of the results, though ill-defined, has
 been a decisive factor of choice over an approach by pure
 statistical means, or by neural networks.''~\cite{ag98}.
-Analogous terms to explainability  in that community 
-are ``comprehensibility'',
-``interpretability''~\cite{maimon05} or ``understandability''~\cite{allahyari:user-oriented}.
 
-In spite of the importance attributed to the subject,
-explanation has not been extensively investigated in the context of SBSE.
-One of the few papers that does is that of 
+In spite of the importance of explanation,
+there are few papers on this topic in the context of
+SBSE.
+One notable exception comes from
  Veerappa and Lieter~\cite{veerappa11} who
 clustered examples from the Pareto
-frontier (examples generated from a goal graph representation of requirements
+frontier (examples generated from a goal graph of requirements
 for London ambulance services). In this approach,
 ``instead of having to inspect a large
 number of individual solutions, (users) can look at a
@@ -230,70 +226,62 @@ and focus their attention on the important
 characteristics of the group rather than the
 particularities of their individual solutions''~\cite{veerappa11}. 
 
-XXXX after creating. still errors in comparisons
+The Veerappa and Lieter study is an interesting investigation
+of an important issue that is rarely explored in the SBSE literature.
+That said, is there a better approach? 
+SBSE algorithms are slow enough
+without the additional cost of some 
+ $O(N^2)$ post-processing clustering.
+Also, given that both clustering and SBSE algorithms divide and explore
+examples, perhaps there is something we can do ``under the hood'' to unify SBSE and
+clustering, thus removing the need for  extra architecture.
 
-While an innovative and insightful study, there
-are three open issues with that method:  (a)~the complexity
-of clustering; (b)~erroneous conclusions could be generated from the users 
-inspection of the clusters; (c)~introduced by users
-incorrectly evaluation the value of generated recommendations.
- Veerappa and Lieter did not evaluate the effects
-of the recommendations that could be generated by users browsing their
-clusters. 
-Also, their method could suffer from scalability issues since it
-a post-processor
-to a clustering algorithm (clustering is a slow process  requiring
- say, $O(N^2)$ comparisons
-for the greedy agglomerate clustering algorithm used in that paper~\cite{koc11b}).
+This paper introduces WICKED, an experiment with an  ``under the hood'' unification of SBSE
+and a near-linear time clustering algorithm. 
+WICKED has several parts:
+\bi
+\item \underline{{\bf W}}HERE4 is a linear-time clusterer that divides the population;
+\item \underline{{\bf I}}NFOGAIN is a linear-time feature selector that  prunes irrelevancies;
+\item  \underline{{\bf C}}ART is a  decision tree learning that find branches to different clusters;
+\item \underline{{\bf K}}ILL is a branch pruner that simplifies (shortens) the branches;
+\item \underline{{\bf E}}NVY is a contrast set learner that  find close pairs of {\em worse,better} clusters;
+\item \underline{{\bf D}}ELTA generates recommendations from the difference of the branches between {\em worse, better} clusters.
+\ei
+The first steps (W.I.C.K.)
+generate a very small
+decision tree that divides up the multi-objective decision space in to many small regions.
+After that, the last steps (E.D.) can be automatic or manual tasks performed by users
+as they trace out effects over their multi-objective problems.
+The rest of this paper addresses four research questions:
 
-Accordingly, in this paper, when:
-\be
-\item Cluster using a near-linear time algorithm;
-\item Better define the process by which recommendations are generated
-      from clusters;
-\item The generated recommendations are tested by generating more
-examples from the model {\em after} the recommendations are imposed
-as extra constraints on the model inputs.
-\ee
-
-XXXX
-One result from this work that may surprise the reader is that our ``explanation'' system is anctually
-an inference procedure as well.
-While our approach could be used as an add-on to other MOEA systems (to augment their reasoning with post-hoc explanations),
-it actually is a viable MOEA in its own right. Research results from cognitive science explain why this is so: 
-according to Leake~\cite{XXX}, explanation is actually an inference procedure in its own right where different
-audiences ``explain'' some phenonomeom in different ways according to their own goals and background knowledge
+\bi
+\item[{\bf RQ1}:] {\em Can WICKED generates \underline{succinct} summaries of multi-objective problems.} 
+We show that, at least for the models explored here, the trees
+generated by W.I.C.K. are very short (25 lines, or less).
+\item[{\bf RQ2}:] {\em Are WICKED's summaries \underline{explanations} of multi-objective problems?}
+We will defend this claim using theory taken from cognitive psychology.
+\item[{\bf RQ3:}] {\em Are WICKED's  explanations \underline{effective}?}
+We will re-run our models use WICKED's 
+recommendations as constraints. This will  achieve optimizations comparable
+to standard MOEA algorithms (NSGA-II).
+\item [{\bf RQ4:}] {\em Does WICKED \underline{scale} to large problems?}
+ We show that WICKED's
+runtimes scale linearly with population size and terminates
+faster than standard multi-objective optimizers
+ (e.g. for one model, one minute for WICKED and 150 for NSGA-II~\cite{deb00a}).
+\ei
+Note that we do {\em not} claim that Note that we WICKED is a
+{\em better} at improving objective
+scores than standard optimizers.  To make that case that WICKED is useful,
+we need to only show that WICKED's optimizations are no worse than standard methods,
+while at the same time show that WICKED offers important additional services (explanation)
+that scale to large problems.
 
 
 \section{A Motivating Example}
 \input{eg}
 
-\section{Models}
-\input{models}
-
-\section{Code}
-\input{algo}
-
-\section{Methods}
-\input{methods}
-\section{Results}
-\input{results}
-
-\section{Explaining ``Explanation''}
-As a starting point in this exploration of explanation,
-it is important to distinguish between the
-(1)~problem of explaining the output of an
-multi-objective optimizer (discussed in this paper);
-from the more complex problem of (2)~explaining how
-that output was generated.  To put that another way:
-we seek to explain eggs, but not
-the chicken.
-
-Next, a definition of  ``explanation'' is required such that:
-\be
-\item An explanation system can be designed;
-\item It is possible to distinguish a  ``good'' for a ``bad'' explanation.
-\ee
+\section{Generating Explanations}
 In the SE literature,
 the general consensus in
 software engineering is that ``good'' explanations
@@ -301,34 +289,101 @@ are succinct explanations~\cite{ag98,dej13z,fenton99}.
 On this score, MOEAs fare poorly since their output can be very verbose
 (hundreds or more examples from the Pareto frontier).
 
-
-Also, cognitive science theory argues that
-there is more to ``explaining'' something that just
-showing it succinctly. According to Kelly's personal
+WICKED uses several techniques taken from cognitive science
+and data mining in order to generate very succinct explanations.
+For cognitive science, we use {\em constrast sets}.
+According to Kelly's personal
 construct theory (PCT) humans explain things via
 ``constructs'' that distinguish sets of examples~\cite{kelly55}.
 So, for Kelly, human explanations are not about
 ``things'' in isolation but rather the {\em
 differences between groups of things}. In data mining, finding
 differences between things is called {\em contrast set learning}~\cite{webb09}.
+Much prior work has shown that the minimal contrast set that most
+distinguishes two populations  can be very small 
+indeed~\cite{me03c,hu02,me07,ying02}. 
+
+\begin{wrapfigure}{r}{3in}
+\includegraphics[width=3in]{4WAY.png}
+\caption{WHERE4 is a spectral learner~\cite{kamvar03}  that eschews
+raw dimensions, focusing instead on just the dimensions that
+most seperate the data.
+WHERE4 divides data four ways, then recurses on each split.
+}\label{fig:4WAY}
+\end{wrapfigure}
+Two of WICKED operators (INFOGAIN and DELTA)
+directly apply Kelly's theory in order to generate succinct explanations
+INFOGAIN is run as after we cluster the data,
+so we first review that clustering technique.
+
+The WHERE4 cluster inputs $N$ examples, each of which is a pair of
+decisions $D$ and objective scores $O$ (and since this is multi-objective
+reasoning, $|D| \ge 1$. WHERE4 clusters the examples base don the decisions
+as follows. 
+As shown in the {\em
+before}  WHERE4 finds a dimension {\em dim1} that
+joins  two distance points in the data (see the line at $40^o$ to the x-axis).
+An orthogonal dimension {\em dim2} is then synthesized and data is split
+four ways on the median value of the two dimensions (which generate the
+four {\em after} data sets shown in that figure). This process recurses
+till the splits are less than $\sqrt{N}$ of the original population.
+WHERE4 is very fast since it uses an $O(2N)$ heuristic to find the
+distant points (pick any point at random; find {\em East},
+the most distance point; find {\em West}, the most distant point to {\em East})\footnote{
+ For distance, we use Euclidean measure recommended for
+instance-based reasoning by Aha et al.~\cite{aha91};
+i.e. $\sqrt{\sum_i(x_i-y_i)^2}$ where $x_i,y_i$ 
+are decisions values normalized 0..1 for the range min..max.
+All point $p$ are then projected to an x-y point as follows. If the
+distance {\em East} to {\em West} is $c$, then
+\mbox{$a=\mathit{dist}(p,\mathit{West})$},
+\mbox{$b=\mathit{dist}(p,\mathit{East})$},
+\mbox{$x=(a^2 + c^2 - b^2)/(2c)$},
+\mbox{$y=\sqrt{a^2 - x^2}$}.}.
+
+Once clustering terminates, following on from Kelly's research,
+we then say that the only attributes that matter in an explanation
+are the ones
+that distinquish the clusters. We can find those attributes using INFOGAIN.
+Each numeric decision is then sorted and divided at the point
+that most reduces the number of different clusters XXX before and after the
+division. The divisions are then  and divided after each value. 
+The set of clusters
+that have decisionsusing the range before and after each division is then
+collected.
+
+ we say that the only decisions 
+
+As to INFOGAIN, this i
+INFOGAIN
+is the classic entropy-based decision
 
 
 
-Other  cognitive science research studied the activities
-humans do during explanation generation.
+
+Firstly, WICKED's clustering algorithm 
+
+One technique for generating small 
+
+Apart from succinctness, 
+cognitive science theory argues that
+there is more to ``explaining'' something that just
+presenting some ideas very   succinctly. An important part of
+an explanation system is that it presents something that
+can be read in many different ways.
 Leake~\cite{leake91}
 lists a dozen different tasks that humans perform when 
-``explaining'' some phenomena. Leake does not claim
+``explaining'' some phenomena (Leake does not claim
 that the following list is complete; just that
 it demonstrates  a wide range of
-goal-based purposes for explanation, including:
+goal-based purposes for explanation). Leake's list  includes:
 \be
 \item
 Connect event to expected/believed conditions.
 \item
 Connect event to previously unexpected conditions.
 \item
-Find predictors for anomalous situation.
+Find predictors for anomalous situations.
 \item
 Find repair points for causes of an undesirable state.
 \item
@@ -340,8 +395,23 @@ Find actors’ contributions to outcome.
 \item
 Find motivations for anomalous actions or decisions.
 \item
-Find a within-theory derivation.
-\ee
+Find a within-theory derivation.  \ee 
+Generalizing
+from these examples, we say that a Leake-style
+explanation system weaves together a set of axioms
+into some story that overlaps, at least to some
+degree, with the known facts or outcomes.  That
+story will have gaps containing things that are
+currently unknown but which might be assumed.
+
+Working in the 1990s, Menzies formally characterized Leake's explanations as
+the  {\em abductive} process where a theory $T$
+is augmented with assumptions $A$ that (a)~do not lead to contridictions and
+(b)~also lead to desired goals $G$\footnote{$T\cup A\vdash G$ and $T\cup A\vdash\not\bot$}.
+Classic implementions of Leake-style explanation suffer from computational problems.
+
+
+
 That is, to Leake, explanation is akin to planning
 where the ``explainer'' is showing some audience how to 
 find or connect together information.
@@ -581,12 +651,27 @@ making?''. That is, these panelists are more interested in the interpretations
 that follow the mining, rather than just  the mining.
 
 
+
+\section{Models}
+\input{models}
+
+\section{Code}
+\input{algo}
+
+\section{Methods}
+\input{methods}
+\section{Results}
+\input{results}
+
+
 \section{Related Work}
 
 Sayyad
 
 GALE
 
+WHERE4, fastmap, platt
+PDDF = where4
 
 \section{to do}
 

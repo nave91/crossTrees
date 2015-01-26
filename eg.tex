@@ -1,192 +1,91 @@
-\subsection{Our Problem}
-To motivate this work, we offer the real-world goal that sparked this work.
 
-The Software Engineering Institute (SEI:
-http://www.sei.cmu.edu/) at Carnegie Mellon
-University is a centralized repository for
+As motivation, this section  offers the real-world goal that
+sparked this work.  The Software Engineering
+Institute (SEI: http://www.sei.cmu.edu/) at Carnegie
+Mellon University is a Federally-Funded Research and
+Development Center. As such, SEI works with many
+software and software-intensive systems, which are
+primarily undertaken for the United States
+government (and the US Department of Defense in
+particular) but also in commercial industry as
+well. As a result of involvement in these programs,
+the SEI is a storehouse for multiple repositories of
 qualitative and quantitative data collected from
-software development for the United States
-government and Department of Defense. Developers
-across the country looked to SEI for explanations of
-what factors effect their project (these
-explanations are used to manage their current
-projects and well as propose methods on how to
-better handle their future projects in a better
-manner).  Also, large scale policy decisions about
-information technology are made by the
-U.S. government, partially in consultation with
-researchers at the SEI.
+software development.
+Developers and managers from across the country look
+to SEI for explanations of what factors effect their
+project (these explanations are used to manage their
+current projects and well as propose methods on how
+to better handle their future projects in a better
+manner).  Also, SEI researchers may have a
+voice in large-scale governmental policy decisions about
+information technology.
 
-It is standard for the
-SEI to issues ``fact sheets'' explaining their
-lessons learned as well as explaining their advise
-on best practice. These explanations are short
-reports (rarely more than both sides of one piece of
-paper) which are intended to give busy managers
-quick guidance for their projects.  In the case of
-quantitative data, these explanations may
-contain some 2D plot showing how one
-objective  (e.g. defects) changes in
-response to changes in one input variable
-(e.g. lines of code).
+ 
+{\em Fact sheets} are one tool used by the SEI for explaining its advice
+on best practices and lessons learned
+(with
+traceability back to the data on which they are
+based).  These
+explanations are short reports (one to two pages)  which are intended
+to give busy managers quick guidance for their
+projects. In the case of quantitative data, these
+explanations may contain some 2D plot showing how
+one objective (e.g. defects) changes in response to
+changes in one input variable (e.g. lines of code).
 
-The veracity of these simple plots
-of SE data is questionable. Even
-for single goal reasoning such as defect reduction,
-there  can only be  poorly
-characterized via one input variable.  Menzies et
-al. compared learners building models with $N=1$
-of $N>1$ input variables: the models that used more
-than one input performed better~\cite{me07b}.
-
-Further, there are many recent SE research publications that
-propose multiple competing goals for SE models; e.g.
-\bi
-\item 
-Build software
-{\em faster} using {\em less} effort with {\em fewer} bugs~\cite{elrawas10};
-\item
-Return defect predictors that find {\em most} defects in the {\em smallest}
-parts of the code~\cite{arisholm06}.
-\ei
-As we move from single goal to
-multiple-goal reasoning, the value of
-simplistic  plots to explain effects in SE projects becomes even more
-questionable. The SBSE experience is that reasoning
-and trading off between multiple goals is much more
-complex that browsing effects related to a single
-isolated goal.
-
-Worse yet, given all the context variables that can
-be used to describe different software projects, it
-is hard to believe that any {\em one} report can
-explain {\em all} the effects seen in all different
-kinds of software projects. Numerous recent reports
-in empirical SE offer the same {\em locality
-effect}; i.e. models generated using {\em all}
-available data perform differently, and often worse, than
-those learned from specific subsets~\cite{posnet11,betta12,me12d,yang13,emse12}.
-
-\subsection{Our Solution}
-
-New results suggest a resolution to the above
-problems.  Firstly, work on {\em low dimensional
-  approximations} of SE data shows we do not
-need to reason about all the context variables
-(since many are redundant or noisy). When applied to
-SBSE, low dimensional approximations can
-guide mutation strategies to find
-better solutions one to two orders of magnitude
-faster than standard evolutionary
-optimizers~\cite{krall14,krall14b}.
-
-Secondly, work on MOEA/D (multi-objective
-evolutionary algorithms with decomposition~\cite{zhang07:TEC}) has
-shown the benefits of dividing  problems into multiple cells, then 
-optimizing each cell separately.  Note
-that this approach is analogous (and actually
-pre-dates) the locality work mentioned above.
-
-The rest of this paper reports an experiment where we generate explanations
-of the forces that impact a software project by combining
-{\em decomposition} with {\em low dimensional approximations}. Our
-system is called WICKED and has six parts:
-\begin{itemize}
-\item[W:]
-\underline{{\bf W}}HERE is Menzies'  near-linear time clustering algorithms~\cite{me12d}  that uses lower dimensional approximations
-to
-decompose
-data from models of SE processes into many small clusters,
-\item [I:] \underline{{\bf I}}NFOGAIN~\cite{FayIra93Multi} 
-finds what numeric ranges best predict for the different clusters.
-\item[C:] To find rules that distinguish the clusters,
-we apply Brieman's \underline{{\bf C}}ART,
-algorithm~\cite{breiman84} to the data simplified by INFOGAIN.
-\item[K:]
-\underline{{\bf K}}ILL  prunes spurious leaf
-branches generated by CART, thus shrinking the tree.
-KILL outputs branches (conjunctions of {\em attribute=value} pairs)
-that lead to clusters $C_0,C_1,C_2,..$.
-\item[E:]
-\underline{{\bf E}}NVY looks at  all clusters $C_i$ trying to find a nearby cluster $C_j$  
-with better objective scores.
-\item[D:] \underline{{\bf D}}ELTA is a contrast-set
-  learner that reports the difference branches
-  ending at $C_i$ and $C_j$.  \ei It is reasonable
-  to ask why these six particular parts, and not six
-  other.  All the above are motivated by the need
-  for generation explanations, and keeping those
-  explanations succinct.  Kelly's Personnel
-  construct theory~\cite{kelly55} conjectures that
-  humans do not explain of the world by studying all
-  factors: rather, they find differences between
-  things. ENVY and DELTA are our method of
-  implementing Kelly's insight.
-
-As to the other parts of WICKED, WHERE's
-dimensionality reduction lets us ignore spurious
-dimensions while we group the data. Once WHERE
-terminates, then the only ranges that are
-interesting are those that distinguish between the
-clusters (and these are found by INFOGAIN).
-INFOGAIN is a pre-processor to decision tree
-learning and KILL is a post-processor.  The
-combination of these pre-post-processors means that
-the trees found by CART are very small. This, in
-turn, means that the contrast found by ENVY+DELTA
-are very succinct.
-
-The output of WICKED is {\em recommendation} for
-how we would improve all the examples in $C_i$. Expressed in terms
-of evolutionary algorithms, {\em recommendation = mutation}; i.e. they
-are the
-suggestion on how to change examples in order to optimize
-multiple objectives.
-Return now to writing fact sheets from the SEI, we note that:
+ 
+Since they are aimed at communicating with busy
+professionals on specific points, fact sheets of
+necessity represent tradeoffs made between
+understandability and accuracy. That said,
+overly simplistic fact sheets
+(while approachable for a larger audience) run the risk of being
+uninformative. For example, consider the use of 2D plots.
+Even for single goal
+reasoning such as defect reduction, these are
+poorly characterized via one input variable. Studies with SE
+data have compared models learned  $N =
+1$  and $N > 1$ input variables. The models that used
+more than one input performed better~\cite{me07b}.
+Further, there are many recent SE research publications that propose multiple competing
+goals for SE models; e.g.
 \bi
 \item
-INFOGAIN+CART+KILL generates very small trees (10 to 20 lines);
+Build software {\em faster} using {\em less} effort with {\em fewer} bugs~\cite{elrawas10};
 \item
-ENVY and DELTA are very simple algorithms
-that can be applied by humans while manually browsing CT0's trees;
-\item
-The experiments shown below demonstrate that DELTA's recommendation are just as effective
-as the mutations proposed by standard 
-optimizers 
-(NSGA-II~\cite{deb00a} and SPEA2~cite{zit02}) for adjusting a
-population in order to improve multiple objectives.
-\item
-All of WICKED's sub-routines
-are  near-linear time algorithms
-that terminate 100 times faster than standard optimizers.
+Return defect predictors that find {\em most} defects in the {\em smallest} parts of the 
+\cite{arisholm6}.
 \ei
-Hence, we propose a modification to SEI's fact sheet:
-they should old the trees
-generated by WHERE+INFOGAIN+CART+KILL. From these, 
-business users can apply ENVY+DELTA in order to
-explore for themselves the effects in SEI's data.
+As we move from single goal to multiple-goal reasoning, the value of examining important factors in isolation using relatively simple plots
+becomes even more questionable. The SBSE experience is that reasoning and
+trading off between multiple goals is much more complex than browsing effects related
+to a single isolated goal.
+
+ 
+Additionally, given all the context variables that can be used to describe different
+software projects, we recognize it is unlikely that any 
+{\em one} report can explain {\em all} the effects
+seen in all different kinds of software projects. Several reports in empirical
+SE offer the same {\em locality effect}; i.e. models built from  {\em all}  data perform
+differently, and often worse, than those learned from specific subsets~\cite{posnet11,betta12,me12d,yang13,emse12}.
 
 
-{\scriptsize
-\begin{alltt}
-if cplx \(\le\) 1.1:                          Effort  Months   Defect Risk
-.. if resl \(\le\) 3.2:
-.. .. if pvol \(\le\) 1.1:
-.. .. .. if site \(\le\) 1.0:
-.. .. .. ..  then: ['__25']  #                 ?      ?        ?      ?
-.. .. .. ..  else: ['__20']  #          d      ?      ?        ?      ?
-.. .. if rely \(\le\) 1.0:
-.. .. .. if pcap \(\le\) 0.9:
-.. .. .. .. if ltex \(\le\) 1.0:
-.. .. .. .. .. if site \(\le\) 1.0:
-.. .. .. .. .. ..  then: ['__3']  #     a     ?        ?      ?       ?
-.. .. .. .. .. ..  else: ['__1']  #     c     ?        ?      ?       ?
-.. .. .. .. .. else: ['__6']  #        b      ?        ?      ?       ?
-.. .. .. .. if ltex \(\le\) 1.0:
-.. .. .. .. .. if pmat \(\le\) 3.9:
-.. .. .. .. .. ..  then: ['__15']  #         ?        ?      ?       ?
-.. .. .. .. .. else: ['__15']  #       e     ?        ?      ?       ?
-\end{alltt}}
-%cplx resl pvol site reply pcal ltex pmat
-
-
+How can we augment SEI's fact sheets such that business users can quickly read and understand:
+\bi
+\item
+The space of effects in multiple dimensions of inputs?
+\item
+The responses of multiple objectives to changes in those inputs?
+\item
+And do so across the space of multiple contexts?
+\ei
+To handle this problem,
+we propose printing succinct decision trees (generated by WICKED)
+as part of the SEI fact sheet. Standard decision trees have leaves
+that predict for a single class variable. WICKED's trees, on the other hand,
+terminate in clusters that comment on multiple objectives. 
+As described below, these trees can be used by domain users to generate
+multiple explanations about their domain. Better yet, as shown by our experiments,
+these small trees actually produce recommendations that are effective at optimizing
+a domain across multiple objectives.
