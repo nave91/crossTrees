@@ -270,16 +270,18 @@ runtimes scale linearly with population size and terminates
 faster than standard multi-objective optimizers
  (e.g. for one model, one minute for WICKED and 150 for NSGA-II~\cite{deb00a}).
 \ei
-Note that we do {\em not} claim that Note that we WICKED is a
+Note that we do {\em not} claim WICKED is a
 {\em better} at improving objective
 scores than standard optimizers.  To make that case that WICKED is useful,
-we need to only show that WICKED's optimizations are no worse than standard methods,
+we need only show that WICKED's optimizations are no worse than standard methods,
 while at the same time show that WICKED offers important additional services (explanation)
 that scale to large problems.
 
 
 \section{A Motivating Example}
 \input{eg}
+
+
 
 \section{Generating Explanations}
 In the SE literature,
@@ -382,6 +384,8 @@ $O(nlog(n))$
 sort of the decision values, the rest is just a
 few linear
 passes through the data.
+
+
 
 \underline{{\em CART:}} Recall that in our
 operationalization of Kelly's theory,
