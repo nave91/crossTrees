@@ -278,47 +278,49 @@ while at the same time show that WICKED offers important additional services (ex
 that scale to large problems.
 
 
+In the following, we say that optimization explores {\em examples},
+where each example is a pair of decisions $d$ and objectives $o$ (and for multi-objective problems,
+$|o|>1$). Connecting $d$ to $o$ is some oracle that inputs the decisions and outputs the objectives.
+
 \section{A Motivating Example}
 \input{eg}
 
 
 
-\section{Generating Explanations}
-In the SE literature,
-the general consensus in
-software engineering is that ``good'' explanations
-are succinct explanations~\cite{ag98,dej13z,fenton99}.
+\section{WICKED  Explanation Generation}
+\subsection{Succinct Explanations}
+In SE,
+the  consensus in
+is that ``good'' explanations
+are succinct~\cite{ag98,dej13z,fenton99}.
 On this score, MOEAs fare poorly since their output can be very verbose
 (hundreds or more examples from the Pareto frontier).
-
-WICKED uses several techniques taken from cognitive science
-and data mining in order to generate very succinct explanations.
-For cognitive science, we use {\em constrast sets}.
-According to Kelly's personal
-construct theory (PCT) humans explain things via
-``constructs'' that distinguish sets of examples~\cite{kelly55}.
+To reedy this,
+WICKED uses Kelly's personal
+construct theory (PCT)~\cite{kelly55} which states humans explain things via
+``constructs'' that distinguish sets of examples.
 So, for Kelly, human explanations are not about
 ``things'' in isolation but rather the {\em
 differences between groups of things}. 
 
-\begin{wrapfigure}{r}{2.3in}
-\includegraphics[width=2.3in]{4WAY.png}
-\caption{WHERE4. Each dot is
-one set of decisions (inputs to a multi-objective model).
-WHERE4 recurses on each of the right-hand-side clusters.
-}\label{fig:4WAY}
-\end{wrapfigure}
-WICKED employees several techniques to operationalize
-Kelly's theory.  Using {\em cluster and
-  differentiate}, data is clustered and the
+To  operationalize
+Kelly's theory, WICKED  uses {\em cluster and
+  differentiate} then {\em contrast set learning}.
+Decisions are  clustered and the
 subsequent reasoning is restricting to only the
-attributes that seperate those clusters. Next,
-using only the attributes found by cluster and differentiate,
+decisions that separate  those clusters. Next,
+using only the decisions found by cluster and differentiate,
  {\em contrast set learning}~\cite{webb09} 
-(a)~build rules to different clusters,
-(b)~find pairs of clusters {\em worse, better}, then
-(c)~report the delta between the branch to {\em worse} and
+is applied to
+build rules to different clusters then (using ENVY and DELTA)
+to find pairs of clusters {\em worse, better}, then
+report the delta between the branch to {\em worse} and
 the branches to {\em better}.
+
+ENVY and DELTA were described above.
+This section describes cluster and differentiate and rule generation
+using
+WHERE4, INFOGAIN, CART, and KILL.
 
 \underline{{\em WHERE4: }}
 WICKED's clusterer~\cite{me12d}
@@ -349,28 +351,39 @@ WHERE4 then clusters the decisions on the median $x,y$ values
 and recurses on each cluster (division of $N$ examples terminates
 when a cluster contains less than $\sqrt{N}$).
 
+
 \underline{{\em INFOGAIN:}} To find attributes that differentiate between clusters,
-WICKED uses the INFOGAIN entropy measure adapted from
+WICKED uses 
+\begin{wrapfigure}{r}{2.3in}
+\includegraphics[width=2.3in]{4WAY.png}
+\caption{WHERE4. Each dot is
+one set of decisions (inputs to a multi-objective model).
+Left-hand-side dots are colored according to what cluster they are assigned on the right-hand-side.
+WHERE4 recurses on each of the right-hand-side clusters.
+}\label{fig:4WAY}
+\end{wrapfigure}
+the INFOGAIN entropy measure adapted from
 Fayyad and Irani~\cite{FayIra93Multi}\footnote{For the reader
 who knows that work, we comment that standard
 FayyadIrani did not work for our models. We had to disable
 the MDL pruning of sub-ranges since, for an optimizer to explore  small
 and interesting ranges of simulation data, it is necessary
 to let it ``take a chance'' on regions of the data that might not
-be strongly supported by many examples.}. The values seen in $N$
+be strongly supported by many examples.}. The values seen
+in $N$
 decisions are sorted, then recursively split at points that
 most simplifies the cluster distributions that use the values
 in each part of the split. To measure simplicity, we use the
 standard entropy measure. Let a split divides a decision's
 values into two
-lists  $v_1,v_2$ of size $n_1,n_2$. Let  the total counts
+lists  $v_1,v_2$ of size $n_1+n_2=n$. Let  the total counts
 of cluster $c_k$ that use an element of $v_i$ be $c_{ik}$
 and 
 $p_{ik} = c_{ik}/n_i$. The entropy $e_i$ of the list $v_i$ can now be computed
 as 
 $-\sum_{k}p_{ik}log_2{p_{ik}}$ and the expected value of the simplicity
 of a list after splitting is 
-\mbox{$n_1/n*e_1 + n_2/n*e_2$} (where $n=n_1 + n_2$)
+\mbox{$n_1/n*e_1 + n_2/n*e_2$} 
 and {\em lower} values are {\em better} since they contain {\em fewer}
 clusters.
 Using this method, WICKED's INFOGAIN operator ranks 
@@ -379,85 +392,145 @@ cluster distribution. It then rejects all but the simplest
 25\% of the decisions and all subsequent reasoning in WICKED
 uses just this small set of decisions that most distinguish
 the cluster of decisions. Note that, like WHERE4, INFOGAIN is
-also very fast to execute: after an initial top-level 
+also fast to execute: after an initial top-level 
 $O(nlog(n))$
 sort of the decision values, the rest is just a
 few linear
 passes through the data.
 
+\underline{{\em CART:}} Now that we have a break-up 
+of the decisions (into the clusters of WHERE4),
+and we know what decisions most select for different clusters (using INFOGAIN),
+the next task is to use those decisions to learn rules that predict for each cluster.
+This is done using the CART iterative dichomitizer~\cite{breiman84}. 
+Given a set
+of decisions that appear in different clusters, CART finds the decision
+whose values best select for fewest clusters. The examples
+are then split on those decision values and the process recurses
+on each split. 
+
+\underline{{\em KILL:}} A repeated effect seen in
+the trees generated by the above process was that
+after some depth $\alpha$ in the branches, the
+majority of examples were all from one
+cluster. Nevertheless, even after $\alpha$, CART
+persisted in building ever deeper subtrees. Since this would make
+our DELTA sets larger, we added the KILL post-processor to prune
+CART's longer, but spurious branches. 
+
+KILL pruned away sub-trees
+where the majority cluster was the same across sibling trees,
+as well as down to all leaves of those siblings. This has  the 
+effect of
+(a)~reducing the length of CART's branches by 20 to 50\%;
+and (b)~reducing the size of the $\Delta$ sets found by DELTA.
+
+For an example of a tree generated by WHERE4+INFOGAIN+CART+KILL,
+see \fig{egree}.
+
+%% \subsection{Goal-Driven Explanations}
+%% To evaluate the above, we turn to another piece of research
+%% from the cognitive science literature. 
+%(Leake does not claim
+%% that the following list is complete; just that
+%% it demonstrates  a wide range of
+%% goal-based purposes for explanation). Leake's list  includes:
+%% \be
+%% \item
+%% Connect event to expected/believed conditions.
+%% \item
+%% Connect event to previously unexpected conditions.
+%% \item
+%% Find predictors for anomalous situations.
+%% \item
+%% Find repair points for causes of an undesirable state.
+%% \item
+%% Clarify current situation to predict effects or choose response.
+%% \item
+%% Find controllable (blockable or achievable) causes.
+%% \item
+%% Find actors’ contributions to outcome.
+%% \item
+%% Find motivations for anomalous actions or decisions.
+%% \item
+%% Find a within-theory derivation.  \ee 
+%% Generalizing
+%% from these examples, we say that a Leake-style
+%% explanation system weaves together a set of axioms
+%% into some story that overlaps, at least to some
+%% degree, with the known facts or outcomes.  That
+%% story will have gaps containing things that are
+%% currently unknown but which might be assumed.
+
+%% Note that the trees built by WICKED can be used for Leake-style
+%% explanation. For example, to {\em connect events}, we reject
+%% all tree branches inconsistent with current decisions. The
+%% surviving  branches would then be the set of
+%% things that might be true and that connect observations and 
 
 
-\underline{{\em CART:}} Recall that in our
-operationalization of Kelly's theory,
-after {\em differentiate and
-contrast} (with
-WHERE4 and INFOGAIN), comes {\em constrast set learning}
-(with CART,KILL,ENVY and DELTA).
+%% all tree branches consistent with current decisions. If arun some
+%% example down the trees to a leaf. 
 
+
+%% Working in the 1990s, Menzies formally characterized Leake's explanations as
+%% the  {\em abductive} process where a theory $T$
+%% is augmented with assumptions $A$ that (a)~do not lead to contridictions and
+%% (b)~also lead to desired goals $G$\footnote{$T\cup A\vdash G$ and $T\cup A\vdash\not\bot$}.
+%% Classic implementions of Leake-style explanation suffer from computational problems.
+
+
+
+%% That is, to Leake, explanation is akin to planning
+%% where the ``explainer'' is showing some audience how to 
+%% find or connect together information.
+%% A system that supports such explanations makes it easier
+%% to ``connect the dots''. In practice that means an explanation system
+%% must:
+%% \bi
+%% \item Input a large set of axioms: e.g. examples, pieces of background knowledge;
+%% \item Output a {\em reduced} set of axioms:
+%% e.g. rules, model fragments,
+%% or as done by Veerappa and Lieter~\cite{veerappa11}, a small number
+%% of representative examples takes from centroids of clusters on the Pareto
+%% frontier;
+%% \item Such that, in the reduces space, it is simple and quick to generate
+%% goal-based explanations including the nine kinds listed above.
+%% \ei
+\subsection{Decision Trees as Explanation Tools}
 Apart from succinctness, 
 cognitive science theory argues that
-there is more to ``explaining'' something that just
+here is more to ``explaining'' something that just
 presenting some ideas very   succinctly. An important part of
 an explanation system is that it presents something that
 can be read in many different ways.
-Leake~\cite{leake91}
+
+For example, Leake~\cite{leake91}
 lists a dozen different tasks that humans perform when 
-``explaining'' some phenomena (Leake does not claim
-that the following list is complete; just that
-it demonstrates  a wide range of
-goal-based purposes for explanation). Leake's list  includes:
-\be
-\item
-Connect event to expected/believed conditions.
-\item
-Connect event to previously unexpected conditions.
-\item
-Find predictors for anomalous situations.
-\item
-Find repair points for causes of an undesirable state.
-\item
-Clarify current situation to predict effects or choose response.
-\item
-Find controllable (blockable or achievable) causes.
-\item
-Find actors’ contributions to outcome.
-\item
-Find motivations for anomalous actions or decisions.
-\item
-Find a within-theory derivation.  \ee 
-Generalizing
-from these examples, we say that a Leake-style
-explanation system weaves together a set of axioms
-into some story that overlaps, at least to some
-degree, with the known facts or outcomes.  That
-story will have gaps containing things that are
-currently unknown but which might be assumed.
+``explaining'' some phenomena. All of them have the same form:
+given chains of inference that connect observables to controllables
+to outcomes, find a subset of those chains that cover some phenomenum of
+interest.
 
-Working in the 1990s, Menzies formally characterized Leake's explanations as
-the  {\em abductive} process where a theory $T$
-is augmented with assumptions $A$ that (a)~do not lead to contridictions and
-(b)~also lead to desired goals $G$\footnote{$T\cup A\vdash G$ and $T\cup A\vdash\not\bot$}.
-Classic implementions of Leake-style explanation suffer from computational problems.
-
-
-
-That is, to Leake, explanation is akin to planning
-where the ``explainer'' is showing some audience how to 
-find or connect together information.
-A system that supports such explanations makes it easier
-to ``connect the dots''. In practice that means an explanation system
-must:
+The branches of the decision trees shown above are candidates for
+exploring Leake's chains of inference.  In our commercial
+work, we have seen business users debate for hours the implications
+of decision trees. Different plans were critiqued with respect to the trees;
+e.g.
 \bi
-\item Input a large set of axioms: e.g. examples, pieces of background knowledge;
-\item Output a {\em reduced} set of axioms:
-e.g. rules, model fragments,
-or as done by Veerappa and Lieter~\cite{veerappa11}, a small number
-of representative examples takes from centroids of clusters on the Pareto
-frontier;
-\item Such that, in the reduces space, it is simple and quick to generate
-goal-based explanations including the nine kinds listed above.
+\item ``Your proposal changes X and X does not appear anywhere in the trees; hence, X might not be important at all.``
+\item ``Your proposal changes X and if I apply X to our current project,
+that seems to fall along this branch, it would drive it to {\em that}
+branch where the defect rates are higher. Maybe we should not do X.''
+\item
+``You have asked me to reduce our defect rates. According to this decision
+tree, the majority of our projects fall down these two branches. Here is
+another different branch where the defect rate is lower. The delta between
+that new branch our old branches is X. I propose we do X.''
 \ei
-\subsection{Decision Trees as ``Explanation Tools''}
+
+
+
 Decision tree learning is a widely-used framework for data mining: given a single goal
 (called the ``class''), find some attribute value that splits the data such
 that the distribution of classes in each split has been simplified
@@ -525,29 +598,6 @@ opinion about the value of the contents of each leaf $\{U_x,U_Y,U_Z, etc\}$,
 then the set difference $B_x - B_y$ is the contrast set of the differences
 that can drive examples on $X$ over to $Y$.
 
-
-``from here to there''.
-
-an explanation does not generate some single
-unique output. Rather, it inputs a set of axioms or examples and
-outputs a reduced set of axioms or examples within which 
-it faster and simpler to generate explanations
- 
-Current MOEA algorithms are ``instance-based methods'' that return
-specific examples that perform ``best'' with respect to the multiple goals.
-The number of examples generated in this way can be overwhelming.
-
-If a user wants to learn general principles from those examples,
-some secondary {\em explanation} process is required to group and generalize those
-examples.
-For example,  Veerappa and Lieter~\cite{veerappa11} clustering examples from the Pareto
-frontier so users (at a minimum) need only browse the centroids of each clusters).
-
-
-
-GAs flat vectors, not the trees explored by by ()say) Gouse et al.
-
-Goals is performance just as good but explain better
 
 One caveat before beginning: if the audience for the
 results of optimization are not human beings, then
@@ -701,6 +751,8 @@ GALE
 
 WHERE4, fastmap, platt
 PDDF = where4
+
+decison trees to custer
 
 \section{to do}
 
