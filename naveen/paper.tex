@@ -499,6 +499,7 @@ def discretize(Cm):
 
 {\scriptsize
 {\bf Model: POM3}
+
 {\scriptsize \begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~}c@{~~~}c}
 \arrayrulecolor{darkgray}
 \rowcolor[gray]{.7}  Model & Value & Cost & Completion & Idle \\ 
@@ -513,6 +514,7 @@ pom3C & 100 & 1830.55 & 1.0 & 0.69  \\
 
 {\scriptsize
 {\bf Model: XOMO}
+
 {\scriptsize \begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~}c@{~~~}c@{~~~}c}
 \arrayrulecolor{darkgray}
 \rowcolor[gray]{.7} Model & Value & Effort & Months & Defects & Risks \\ 
@@ -534,7 +536,6 @@ xomoos & 100 & 6739.59 & 66.83 & 64776.58 & 13.55  \\
 
 
 \begin{figure}[!t]
-
 {\scriptsize
 {\bf Model: POM3A}
 
@@ -551,10 +552,12 @@ xomoos & 100 & 6739.59 & 66.83 & 64776.58 & 13.55  \\
  & CT0 & 13 & 23 & \quart{0.0}{23.0}{13.0} \\ 
  & NSGA II & 32 & 46 & \quart{5.0}{46.0}{32.0} \\ 
 \end{tabular}}
+
 }
 
 {\scriptsize
 {\bf Model: POM3B}
+
 {\scriptsize \begin{tabular}{l@{~~~}l@{~~~}l@{~~~}r@{~~~}r@{~~~}c}
 \arrayrulecolor{darkgray}
 \rowcolor[gray]{.7}  Objective & method & median & IQR & \\ 
@@ -572,6 +575,7 @@ xomoos & 100 & 6739.59 & 66.83 & 64776.58 & 13.55  \\
 }
 {\scriptsize
 {\bf Model: POM3C}
+
 {\scriptsize \begin{tabular}{l@{~~~}l@{~~~}l@{~~~}r@{~~~}r@{~~~}c}
 \arrayrulecolor{darkgray}
 \rowcolor[gray]{.7}  Objective & method & median & IQR & \\ 
@@ -587,10 +591,66 @@ xomoos & 100 & 6739.59 & 66.83 & 64776.58 & 13.55  \\
 \end{tabular}}
 
 }
-
-
 \caption{Model: POM3}\label{fig:pom3}
 \end{figure}
+
+
+\begin{figure}[!t]
+\scriptsize
+%\bf
+\begin{minipage}{.52\linewidth}
+
+\begin{tabular}{|l@{~}c@{~}c@{~}r|}
+\arrayrulecolor{lightgray}
+\rowcolor[gray]{0.85}   & Rx & Median & \\ 
+\hline\rowcolor[gray]{1.0} cost  & 0 & 13 & \quart{8.0}{6.0}{13.0} \\ 
+ & W & 45 & \quart{33.0}{26.0}{45.0} \\ 
+ & N & 2 & \quart{1.0}{0.0}{2.0} \\ 
+\hline\rowcolor[gray]{1.0} completion  & 0 & 82 & \quart{72.0}{1.0}{82.0} \\ 
+ & W & 82 & \quart{69.0}{1.0}{82.0} \\ 
+ & N & 88 & \quart{80.0}{0.0}{88.0} \\ 
+\hline\rowcolor[gray]{1.0} idle  & 0 & 36 & \quart{2.0}{39.0}{36.0} \\ 
+ & W & 18 & \quart{0.0}{39.0}{18.0} \\ 
+ & N & 26 & \quart{0.0}{47.0}{26.0} \\ 
+\end{tabular}
+
+
+\begin{tabular}{|l@{~}c@{~}c@{~}r|}
+\arrayrulecolor{lightgray}
+\rowcolor[gray]{.85}02  & Rx & median  &  \\ 
+\rowcolor[gray]{1.0} effort  & 0 & 5 &  \quart{3.0}{0.0}{5.0} \\ 
+ & W & 7 &  \quart{6.0}{1.0}{7.0} \\ 
+ & N & 13 &  \quart{6.0}{14.0}{13.0} \\ 
+\hline\rowcolor[gray]{1.0} months  & 0 & 25 &  \quart{23.0}{0.0}{25.0} \\ 
+ & W & 20 &  \quart{19.0}{0.0}{20.0} \\ 
+ & N & 43 &  \quart{33.0}{20.0}{43.0} \\ 
+\hline\rowcolor[gray]{1.0} defects  & 0 & 37 &  \quart{25.0}{24.0}{37.0} \\ 
+ & W & 1 &  \quart{1.0}{0.0}{1.0} \\ 
+ & N & 5 &  \quart{1.0}{8.0}{5.0} \\ 
+\hline\rowcolor[gray]{1.0} risks  & 0 & 79 &  \quart{67.0}{16.0}{79.0} \\ 
+ & W & 13 &  \quart{12.0}{0.0}{13.0} \\ 
+ & N & 6 &  \quart{0.0}{10.0}{6.0} \\\hline 
+\end{tabular}
+
+
+\end{minipage}
+\caption{  XOMO results (left); POM3 results (right);
+all results from 20 runs with different random seeds.
+Big black dots show median values. 
+Horizontal
+lines show 25th to 75th percentile.
+All results are normalized 0..100, min..max. 
+Except for POM3's {\em completion} objective, 
+{\em smaller} values are
+{\em better}. In the ``Rx'' column,
+``0,W,N'' denotes 
+results from baseline,
+WICKED, and  NSGA-II (respectively).
+}\label{optresults}
+\end{figure}
+
+
+
 
 
 
